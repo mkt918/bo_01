@@ -280,18 +280,9 @@ body {
     animation: rotate-animation 10s linear infinite;
 }
 
-/* Calculation Diagrams - Restoring Table Layout */
-.calc-diagram-bs,
-.calc-diagram-pl {
-    @apply grid grid-cols-2 gap-px bg-slate-200 border-2 border-slate-200 rounded-2xl overflow-hidden shadow-sm;
-}
-
-.calc-diagram-capital {
-    @apply flex items-center justify-between gap-2 p-4 bg-slate-50 rounded-2xl border border-slate-100;
-}
-
+/* Calculation Diagrams - Refined Table Style */
 .calc-item {
-    @apply bg-white p-4 flex flex-col items-center justify-center gap-1 min-h-[100px] transition-colors;
+    @apply p-4 flex flex-col items-center justify-center gap-1 min-h-[100px] transition-colors bg-white;
 }
 
 .calc-item.asset {
@@ -315,19 +306,39 @@ body {
 }
 
 .calc-item-label {
-    @apply text-[10px] font-black uppercase tracking-widest text-slate-400;
+    @apply text-sm font-black mb-1;
+}
+
+.calc-item.asset .calc-item-label {
+    @apply text-[var(--asset-text)];
+}
+
+.calc-item.liability .calc-item-label {
+    @apply text-[var(--liability-text)];
+}
+
+.calc-item.equity .calc-item-label {
+    @apply text-[var(--equity-text)];
+}
+
+.calc-item.expense .calc-item-label {
+    @apply text-[var(--expense-text)];
+}
+
+.calc-item.revenue .calc-item-label {
+    @apply text-[var(--revenue-text)];
 }
 
 .calc-item-value {
-    @apply text-xl font-bold text-slate-700 font-mono;
+    @apply text-2xl font-black text-slate-800 font-mono;
 }
 
 .calc-item-value.unknown {
-    @apply text-indigo-600 bg-indigo-50 px-4 py-1 rounded-lg border-2 border-dashed border-indigo-200 animate-pulse;
+    @apply text-indigo-600 bg-white px-6 py-2 rounded-xl border-2 border-dashed border-indigo-200 animate-pulse shadow-sm;
 }
 
 .calc-arrow {
-    @apply text-2xl font-black text-slate-300;
+    @apply text-2xl font-black text-slate-200 px-2;
 }
 
 .glass-input {

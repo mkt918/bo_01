@@ -153,19 +153,23 @@ export function showCalcQuestion() {
 function generateBSDiagram(question) {
     const { asset, liability, equity } = question.values;
     const u = question.unknown;
-    return `<div class="calc-diagram-bs">
-        <div class="calc-item asset">
-            <span class="calc-item-label">資産</span>
-            <span class="calc-item-value ${u === 'asset' ? 'unknown' : ''}">${u === 'asset' ? '?' : asset.toLocaleString()}</span>
-        </div>
-        <div>
-            <div class="calc-item liability" style="margin-bottom:1rem;">
-                <span class="calc-item-label">負債</span>
-                <span class="calc-item-value ${u === 'liability' ? 'unknown' : ''}">${u === 'liability' ? '?' : liability.toLocaleString()}</span>
+    return `
+    <div class="game-table shadow-sm mb-4 max-w-md mx-auto">
+        <div class="game-table-header"><span>（借方）</span><span>貸借対照表</span><span>（貸方）</span></div>
+        <div class="grid grid-cols-2 h-36">
+            <div class="calc-item asset border-r border-slate-100">
+                <span class="calc-item-label">資産</span>
+                <span class="calc-item-value ${u === 'asset' ? 'unknown' : ''}">${u === 'asset' ? '?' : asset.toLocaleString()}</span>
             </div>
-            <div class="calc-item equity">
-                <span class="calc-item-label">純資産</span>
-                <span class="calc-item-value ${u === 'equity' ? 'unknown' : ''}">${u === 'equity' ? '?' : equity.toLocaleString()}</span>
+            <div class="flex flex-col h-full">
+                <div class="calc-item liability border-b border-slate-100 flex-1">
+                    <span class="calc-item-label">負債</span>
+                    <span class="calc-item-value ${u === 'liability' ? 'unknown' : ''}">${u === 'liability' ? '?' : liability.toLocaleString()}</span>
+                </div>
+                <div class="calc-item equity flex-1">
+                    <span class="calc-item-label">純資産</span>
+                    <span class="calc-item-value ${u === 'equity' ? 'unknown' : ''}">${u === 'equity' ? '?' : equity.toLocaleString()}</span>
+                </div>
             </div>
         </div>
     </div>`;
@@ -174,20 +178,24 @@ function generateBSDiagram(question) {
 function generateCapitalDiagram(question) {
     const { startCapital, endCapital, profit } = question.values;
     const u = question.unknown;
-    return `<div class="calc-diagram-capital">
-        <div class="calc-item equity">
-            <span class="calc-item-label">期首資本</span>
-            <span class="calc-item-value ${u === 'startCapital' ? 'unknown' : ''}">${u === 'startCapital' ? '?' : startCapital.toLocaleString()}</span>
-        </div>
-        <div class="calc-arrow">+</div>
-        <div class="calc-item revenue">
-            <span class="calc-item-label">純利益</span>
-            <span class="calc-item-value ${u === 'profit' ? 'unknown' : ''}">${u === 'profit' ? '?' : profit.toLocaleString()}</span>
-        </div>
-        <div class="calc-arrow">=</div>
-        <div class="calc-item equity">
-            <span class="calc-item-label">期末資本</span>
-            <span class="calc-item-value ${u === 'endCapital' ? 'unknown' : ''}">${u === 'endCapital' ? '?' : endCapital.toLocaleString()}</span>
+    return `
+    <div class="game-table shadow-sm mb-4 max-w-md mx-auto">
+        <div class="game-table-header text-center justify-center"><span>資本の変動</span></div>
+        <div class="grid grid-cols-[1fr,auto,1fr,auto,1fr] items-center p-4 bg-white min-h-[100px]">
+            <div class="calc-item flex-1">
+                <span class="calc-item-label">期首資本</span>
+                <span class="calc-item-value ${u === 'startCapital' ? 'unknown' : ''}">${u === 'startCapital' ? '?' : startCapital.toLocaleString()}</span>
+            </div>
+            <div class="calc-arrow">+</div>
+            <div class="calc-item flex-1">
+                <span class="calc-item-label">純利益</span>
+                <span class="calc-item-value ${u === 'profit' ? 'unknown' : ''}">${u === 'profit' ? '?' : profit.toLocaleString()}</span>
+            </div>
+            <div class="calc-arrow">=</div>
+            <div class="calc-item flex-1">
+                <span class="calc-item-label">期末資本</span>
+                <span class="calc-item-value ${u === 'endCapital' ? 'unknown' : ''}">${u === 'endCapital' ? '?' : endCapital.toLocaleString()}</span>
+            </div>
         </div>
     </div>`;
 }
@@ -195,19 +203,23 @@ function generateCapitalDiagram(question) {
 function generatePLDiagram(question) {
     const { revenue, expense, profit } = question.values;
     const u = question.unknown;
-    return `<div class="calc-diagram-pl">
-        <div class="calc-item expense">
-            <span class="calc-item-label">費用</span>
-            <span class="calc-item-value ${u === 'expense' ? 'unknown' : ''}">${u === 'expense' ? '?' : expense.toLocaleString()}</span>
-        </div>
-        <div>
-            <div class="calc-item revenue" style="margin-bottom:1rem;">
+    return `
+    <div class="game-table shadow-sm mb-4 max-w-md mx-auto">
+        <div class="game-table-header"><span>（借方）</span><span>損益計算書</span><span>（貸方）</span></div>
+        <div class="grid grid-cols-2 h-32">
+            <div class="flex flex-col h-full border-r border-slate-100">
+                <div class="calc-item expense flex-1">
+                    <span class="calc-item-label">費用</span>
+                    <span class="calc-item-value ${u === 'expense' ? 'unknown' : ''}">${u === 'expense' ? '?' : expense.toLocaleString()}</span>
+                </div>
+                <div class="${profit >= 0 ? 'bg-cyan-50/50 text-cyan-500' : 'bg-rose-50/50 text-rose-500'} text-[9px] font-bold text-center py-1 border-t border-slate-100">
+                    ${profit >= 0 ? '当期純利益' : '当期純損失'}
+                </div>
+            </div>
+            <div class="calc-item revenue h-full">
                 <span class="calc-item-label">収益</span>
                 <span class="calc-item-value ${u === 'revenue' ? 'unknown' : ''}">${u === 'revenue' ? '?' : revenue.toLocaleString()}</span>
-            </div>
-            <div class="calc-item revenue">
-                <span class="calc-item-label">純利益</span>
-                <span class="calc-item-value ${u === 'profit' ? 'unknown' : ''}">${u === 'profit' ? '?' : profit.toLocaleString()}</span>
+                ${u === 'profit' ? `<div class="mt-2 calc-item-value unknown">?</div>` : ''}
             </div>
         </div>
     </div>`;
