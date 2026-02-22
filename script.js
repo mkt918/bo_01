@@ -26,6 +26,7 @@ const SECTION_MAP_REVERSE = {
 // ===== レベルデータ（直接埋め込み） =====
 const LEVEL_DATA = {
     'L1': {
+        id: 'L1',
         name: '5つの要素について',
         available: true,
         data: {
@@ -37,6 +38,7 @@ const LEVEL_DATA = {
         }
     },
     'L2': {
+        id: 'L2',
         name: '仕訳問題（単元別）',
         available: true,
         sections: {
@@ -93,6 +95,7 @@ const LEVEL_DATA = {
         }
     },
     'L3': {
+        id: 'L3',
         name: '仕訳問題（総合）',
         available: true,
         data: []
@@ -173,6 +176,8 @@ const elements = {
     calcAnswerInput: document.getElementById('calc-answer-input'),
     calcInputLabel: document.getElementById('calc-input-label'),
     calcSubmitBtn: document.getElementById('calc-submit-btn'),
+    calcFeedback: document.getElementById('calc-feedback'),
+    calcFeedbackText: document.getElementById('calc-feedback-text'),
     backFromCalcBtn: document.getElementById('back-from-calc-btn'),
     // 計算結果
     calcAccuracy: document.getElementById('calc-accuracy'),
@@ -228,7 +233,8 @@ let sortingState = {
     placements: {},
     startTime: null,
     elapsedTime: 0,
-    timerInterval: null
+    timerInterval: null,
+    draggedAccount: null
 };
 
 // ===== 計算モード状態 =====
@@ -255,6 +261,40 @@ let journalState = {
     isAnswered: false,
     section: null // 'cash', 'bank' など
 };
+
+// ========================================
+// ===== ユーティリティ関数 =====
+// ========================================
+
+// トースト通知関数
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type} fixed top-4 right-4 bg-white shadow-xl rounded-2xl p-4 z-50 animate-slide-in`;
+
+    const icon = type === 'error' ? '⚠️' : type === 'success' ? '✅' : 'ℹ️';
+
+    const flexDiv = document.createElement('div');
+    flexDiv.className = 'flex items-center gap-3';
+
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'text-2xl';
+    iconSpan.textContent = icon;
+
+    const textP = document.createElement('p');
+    textP.className = 'font-semibold';
+    textP.textContent = message;
+
+    flexDiv.appendChild(iconSpan);
+    flexDiv.appendChild(textP);
+    toast.appendChild(flexDiv);
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('animate-slide-out');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
 
 // ========================================
 // ===== 仕訳問題モード (レベル2, 3共通) =====
@@ -293,6 +333,11 @@ function startJournalMode(levelId, mode, sectionId = null) {
 }
 
 function startJournalTimer() {
+    // 既存のタイマーがあればクリア
+    if (journalState.timerInterval) {
+        clearInterval(journalState.timerInterval);
+        journalState.timerInterval = null;
+    }
     journalState.startTime = Date.now();
     journalState.timerInterval = setInterval(() => {
         journalState.elapsedTime = Math.floor((Date.now() - journalState.startTime) / 1000);
@@ -483,7 +528,7 @@ function endJournalGame() {
 
     // 復習モードの場合はスコアを表示せずメニューに戻る
     if (journalState.mode === 'retry') {
-        alert('復習が完了しました！');
+        showToast('復習が完了しました！', 'success');
         updateMenu();
         showScreen('menu');
         return;
@@ -502,20 +547,60 @@ function endJournalGame() {
 // ===== メイン初期化の拡張 =====
 
 // ===== ローカルストレージ操作 =====
+function validateStorageData(key, data) {
+    switch(key) {
+        case STORAGE_KEYS.HISTORY:
+            return Array.isArray(data) && data.every(item =>
+                item.date && item.level && typeof item.accuracy === 'number'
+            );
+        case STORAGE_KEYS.WRONG_ANSWERS:
+            return Array.isArray(data);
+        case STORAGE_KEYS.ACCOUNT_STATS:
+            return typeof data === 'object' && data !== null;
+        default:
+            return true;
+    }
+}
+
 function loadFromStorage(key) {
     try {
         const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : null;
-    } catch {
+        if (!data) return null;
+
+        const parsed = JSON.parse(data);
+
+        if (!validateStorageData(key, parsed)) {
+            console.warn(`Invalid data for key ${key}, resetting...`);
+            return null;
+        }
+
+        return parsed;
+    } catch (error) {
+        console.error(`Failed to load ${key}:`, error);
+        try {
+            localStorage.removeItem(key);
+        } catch {}
         return null;
     }
 }
 
 function saveToStorage(key, data) {
     try {
-        localStorage.setItem(key, JSON.stringify(data));
-    } catch (e) {
-        console.error('保存に失敗しました:', e);
+        const dataStr = JSON.stringify(data);
+        if (dataStr.length > 5 * 1024 * 1024) {
+            throw new Error('Data size exceeds 5MB limit');
+        }
+
+        localStorage.setItem(key, dataStr);
+        return true;
+    } catch (error) {
+        if (error.name === 'QuotaExceededError') {
+            showToast('ストレージ容量が不足しています', 'error');
+        } else {
+            console.error('Failed to save data:', error);
+            showToast('データの保存に失敗しました', 'error');
+        }
+        return false;
     }
 }
 
@@ -678,6 +763,12 @@ function formatDate(date) {
 
 // ===== 画面切り替え =====
 function showScreen(screenName) {
+    // 全タイマーをクリア
+    stopTimer();
+    stopSortingTimer();
+    stopCalcTimer();
+    stopJournalTimer();
+
     Object.values(screens).forEach(screen => screen.classList.remove('active'));
     screens[screenName].classList.add('active');
 }
@@ -722,6 +813,11 @@ function generateQuestions() {
 
 // ===== タイマー =====
 function startTimer() {
+    // 既存のタイマーがあればクリア
+    if (gameState.timerInterval) {
+        clearInterval(gameState.timerInterval);
+        gameState.timerInterval = null;
+    }
     gameState.startTime = Date.now();
     gameState.timerInterval = setInterval(() => {
         gameState.elapsedTime = Math.floor((Date.now() - gameState.startTime) / 1000);
@@ -914,7 +1010,7 @@ function endGame() {
 
     // 復習モードの場合はスコアを表示せずメニューに戻る
     if (gameState.mode === 'retry') {
-        alert('復習が完了しました！');
+        showToast('復習が完了しました！', 'success');
         updateMenu();
         showScreen('menu');
         return;
@@ -1104,13 +1200,62 @@ function showWeakList() {
 
 // ===== 履歴クリア =====
 function clearHistory() {
-    if (confirm('すべての記録をクリアしますか？')) {
+    const history = loadFromStorage(STORAGE_KEYS.HISTORY) || [];
+    const wrongCount = (loadFromStorage(STORAGE_KEYS.WRONG_ANSWERS) || []).length;
+    const statsCount = Object.keys(loadFromStorage(STORAGE_KEYS.ACCOUNT_STATS) || {}).length;
+
+    // モーダルダイアログを表示
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white rounded-3xl p-8 max-w-md mx-4 shadow-2xl">
+            <h3 class="text-2xl font-bold text-slate-800 mb-4">⚠️ データの完全削除</h3>
+            <p class="text-slate-600 mb-6">以下のデータがすべて削除されます:</p>
+            <ul class="text-left mb-6 space-y-2">
+                <li class="flex items-center gap-2">
+                    <span class="text-indigo-600">📊</span>
+                    <span>過去の記録: <strong>${history.length}件</strong></span>
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="text-rose-600">📉</span>
+                    <span>間違えた問題: <strong>${wrongCount}問</strong></span>
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="text-emerald-600">📋</span>
+                    <span>成績データ: <strong>${statsCount}科目</strong></span>
+                </li>
+            </ul>
+            <p class="text-rose-600 font-bold mb-6">この操作は取り消せません。</p>
+            <div class="flex gap-3">
+                <button class="btn-cancel flex-1 bg-slate-100 text-slate-700 rounded-xl py-3 font-bold hover:bg-slate-200">
+                    キャンセル
+                </button>
+                <button class="btn-confirm flex-1 bg-rose-600 text-white rounded-xl py-3 font-bold hover:bg-rose-700">
+                    削除する
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('.btn-cancel').addEventListener('click', () => {
+        modal.remove();
+    });
+
+    modal.querySelector('.btn-confirm').addEventListener('click', () => {
         localStorage.removeItem(STORAGE_KEYS.HISTORY);
         localStorage.removeItem(STORAGE_KEYS.WRONG_ANSWERS);
         localStorage.removeItem(STORAGE_KEYS.ACCOUNT_STATS);
+        modal.remove();
+        showToast('すべてのデータを削除しました', 'success');
         showHistory();
         updateMenu();
-    }
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
 }
 
 // ========================================
@@ -1153,6 +1298,11 @@ function startSortingMode() {
 }
 
 function startSortingTimer() {
+    // 既存のタイマーがあればクリア
+    if (sortingState.timerInterval) {
+        clearInterval(sortingState.timerInterval);
+        sortingState.timerInterval = null;
+    }
     sortingState.startTime = Date.now();
     sortingState.timerInterval = setInterval(() => {
         sortingState.elapsedTime = Math.floor((Date.now() - sortingState.startTime) / 1000);
@@ -1180,13 +1330,11 @@ function showNextCard() {
     elements.sortingCurrent.textContent = sortingState.currentIndex + 1;
 }
 
-let draggedAccount = null;
-
 function initDragAndDrop() {
     const card = elements.accountCard;
 
     card.addEventListener('dragstart', (e) => {
-        draggedAccount = elements.cardAccountName.textContent;
+        sortingState.draggedAccount = elements.cardAccountName.textContent;
         card.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
     });
@@ -1210,10 +1358,10 @@ function initDragAndDrop() {
             e.preventDefault();
             zone.classList.remove('drag-over');
 
-            if (draggedAccount) {
+            if (sortingState.draggedAccount) {
                 const category = zone.dataset.category;
-                placeAccount(draggedAccount, category, zone);
-                draggedAccount = null;
+                placeAccount(sortingState.draggedAccount, category, zone);
+                sortingState.draggedAccount = null;
             }
         });
 
@@ -1560,6 +1708,11 @@ function generatePLDiagram(question) {
 }
 
 function startCalcTimer() {
+    // 既存のタイマーがあればクリア
+    if (calcState.timerInterval) {
+        clearInterval(calcState.timerInterval);
+        calcState.timerInterval = null;
+    }
     calcState.startTime = Date.now();
     calcState.timerInterval = setInterval(() => {
         calcState.elapsedTime = Math.floor((Date.now() - calcState.startTime) / 1000);
@@ -1574,12 +1727,37 @@ function stopCalcTimer() {
     }
 }
 
-function submitCalcAnswer() {
-    const userAnswer = parseInt(elements.calcAnswerInput.value);
-    const question = calcState.questions[calcState.currentQuestion];
+function showCalcError(message) {
+    elements.calcFeedback.classList.remove('hidden', 'correct');
+    elements.calcFeedback.classList.add('incorrect');
+    elements.calcFeedbackText.textContent = `⚠️ ${message}`;
+    setTimeout(() => {
+        elements.calcFeedback.classList.add('hidden');
+    }, 2000);
+}
 
+function submitCalcAnswer() {
+    const inputValue = elements.calcAnswerInput.value.trim();
+
+    // 空文字チェック
+    if (!inputValue) {
+        showCalcError('金額を入力してください');
+        return;
+    }
+
+    // 数値変換
+    const userAnswer = parseInt(inputValue, 10);
+
+    // NaNチェック
     if (isNaN(userAnswer)) {
-        alert('数値を入力してください');
+        showCalcError('有効な数値を入力してください');
+        return;
+    }
+
+    // 負の数チェック（純利益以外）
+    const question = calcState.questions[calcState.currentQuestion];
+    if (userAnswer < 0 && question.unknown !== 'profit') {
+        showCalcError('正の数値を入力してください');
         return;
     }
 
@@ -1701,12 +1879,33 @@ function updateCalcDisplay() {
 // ===== スプレッドシート連携 (CSV) =====
 async function loadQuestionsFromSpreadsheet(url) {
     try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Network response was not ok');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const csvText = await response.text();
+
+        if (!csvText || csvText.trim().length === 0) {
+            throw new Error('Empty CSV data');
+        }
+
         parseCSVToJournal(csvText);
+        console.log('L2データ読み込み完了');
     } catch (error) {
-        console.error('スプレッドシートの読み込みに失敗しました:', error);
+        if (error.name === 'AbortError') {
+            console.error('CSV読み込みタイムアウト');
+            showToast('データ読み込みに時間がかかっています', 'error');
+        } else {
+            console.error('CSV読み込みエラー:', error);
+            showToast('オンライン問題の読み込みに失敗しました', 'error');
+        }
+        throw error;
     }
 }
 
@@ -1777,10 +1976,27 @@ function parseCSVToJournal(csvText) {
 }
 
 // ===== 初期化 =====
-loadQuestionsFromSpreadsheet(SPREADSHEET_CSV_URL);
-updateMenu();
-initEventListeners();
-initDragAndDrop();
+async function init() {
+    try {
+        await loadQuestionsFromSpreadsheet(SPREADSHEET_CSV_URL);
+        console.log('L2データ読み込み完了');
+    } catch (error) {
+        console.error('L2データ読み込み失敗:', error);
+        // L2ボタンを無効化
+        document.querySelectorAll('[data-level="L2"]').forEach(el => {
+            el.disabled = true;
+            el.classList.add('opacity-50', 'cursor-not-allowed');
+            el.title = 'データ読み込みに失敗しました';
+        });
+    } finally {
+        updateMenu();
+        initEventListeners();
+        initDragAndDrop();
+    }
+}
+
+// 初期化実行
+init();
 
 function startRetryWrong(levelId = null, sectionId = null) {
     let wrongAnswers = loadFromStorage(STORAGE_KEYS.WRONG_ANSWERS) || [];
@@ -1806,8 +2022,11 @@ function startRetryWrong(levelId = null, sectionId = null) {
         journalState.currentQuestion = 0;
         journalState.correctCount = 0;
         journalState.elapsedTime = 0;
-        journalState.startTime = Date.now();
         journalState.mode = 'retry';
+
+        // タイマー開始を追加
+        startJournalTimer();
+
         showScreen('journal-screen');
         showJournalQuestion();
     } else {

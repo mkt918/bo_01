@@ -287,6 +287,54 @@ body {
     background-color: #fef2f2;
 }
 
+/* ===== レスポンシブ対応 ===== */
+
+/* タブレット (768px - 1024px) */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .glass-card {
+        padding: 2rem;
+        border-radius: 2rem;
+    }
+
+    .stats-table-container {
+        overflow-x: auto;
+    }
+
+    .journal-choice-btn {
+        padding: 1rem;
+    }
+
+    .choice-content {
+        flex-direction: column;
+    }
+
+    .calc-main-container {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* スマートフォン (小) */
+@media (max-width: 480px) {
+    .account-name {
+        font-size: 2rem !important;
+        min-width: 200px;
+    }
+
+    .stats-table th,
+    .stats-table td {
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    .rank {
+        font-size: 4rem !important;
+    }
+
+    .btn {
+        min-height: 44px; /* タッチターゲット拡大 */
+    }
+}
+
 /* Small adjustments for mobile */
 @media (max-width: 640px) {
     .glass-card {
@@ -297,4 +345,91 @@ body {
     .text-4xl {
         font-size: 2rem;
     }
+}
+
+/* ===== トースト通知アニメーション ===== */
+@keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-out {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.animate-slide-in {
+    animation: slide-in 0.3s ease-out;
+}
+
+.animate-slide-out {
+    animation: slide-out 0.3s ease-in;
+}
+
+.toast {
+    min-width: 200px;
+    max-width: 400px;
+}
+
+/* ===== アクセシビリティ ===== */
+
+/* キーボードフォーカスのスタイル */
+.keyboard-focus {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+/* フォーカス表示の強化 */
+button:focus-visible,
+input:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.btn:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+}
+
+/* 正解/不正解のアイコン追加 */
+.table-cell.correct::before {
+    content: '✓';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1.5rem;
+    color: #22c55e;
+    font-weight: bold;
+}
+
+.table-cell.incorrect::before {
+    content: '✗';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1.5rem;
+    color: #ef4444;
+    font-weight: bold;
+}
+
+/* コントラスト比の改善 */
+:root {
+    --asset-text: #0c4a6e;     /* Sky 900 */
+    --liability-text: #92400e; /* Amber 800 */
+    --equity-text: #6b21a8;    /* Purple 800 */
+    --expense-text: #9f1239;   /* Rose 800 */
+    --revenue-text: #065f46;   /* Emerald 800 */
 }
