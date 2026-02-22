@@ -164,6 +164,35 @@ body {
     animation: fadeIn 0.5s ease-out forwards;
 }
 
+/* Accordion Styles */
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0, 1, 0, 1);
+}
+
+.accordion-content.open {
+    max-height: 1000px;
+    transition: all 0.5s ease-in-out;
+}
+
+.accordion-header .accordion-icon {
+    transition: transform 0.3s ease;
+}
+
+.accordion-header.active .accordion-icon {
+    transform: rotate(180deg);
+}
+
+/* UI Utilities */
+.shadow-soft {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+}
+
+.badge {
+    animation: fadeIn 0.3s ease-out;
+}
+
 /* Table Specific Polishing */
 .table-cell {
     position: relative;
@@ -331,7 +360,8 @@ body {
     }
 
     .btn {
-        min-height: 44px; /* タッチターゲット拡大 */
+        min-height: 44px;
+        /* タッチターゲット拡大 */
     }
 }
 
@@ -353,6 +383,7 @@ body {
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -364,6 +395,7 @@ body {
         transform: translateX(0);
         opacity: 1;
     }
+
     to {
         transform: translateX(100%);
         opacity: 0;
@@ -427,9 +459,14 @@ input:focus-visible {
 
 /* コントラスト比の改善 */
 :root {
-    --asset-text: #0c4a6e;     /* Sky 900 */
-    --liability-text: #92400e; /* Amber 800 */
-    --equity-text: #6b21a8;    /* Purple 800 */
-    --expense-text: #9f1239;   /* Rose 800 */
-    --revenue-text: #065f46;   /* Emerald 800 */
+    --asset-text: #0c4a6e;
+    /* Sky 900 */
+    --liability-text: #92400e;
+    /* Amber 800 */
+    --equity-text: #6b21a8;
+    /* Purple 800 */
+    --expense-text: #9f1239;
+    /* Rose 800 */
+    --revenue-text: #065f46;
+    /* Emerald 800 */
 }
