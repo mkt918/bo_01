@@ -20,7 +20,7 @@
                     class="text-4xl font-extrabold tracking-tight-custom text-center mb-1 bg-clip-text text-transparent bg-gradient-to-br from-indigo-700 to-violet-700">
                     簿記クイズ
                 </h1>
-                <p class="text-sm font-semibold tracking-widest text-slate-400 uppercase mb-10">勘定科目の分類マスター</p>
+                <p class="text-xs font-bold tracking-widest text-slate-500 uppercase mb-10">勘定科目の分類マスター</p>
 
                 <div class="w-full flex flex-col gap-4">
                     <button id="start-btn"
@@ -50,18 +50,18 @@
             </div>
         </div>
 
-        <!-- レベル選択画面 -->
+        <!-- 問題選択画面 -->
         <div id="level-screen" class="screen">
             <div class="premium-card">
                 <div class="flex items-center gap-4 mb-8">
                     <button id="back-to-menu-btn"
-                        class="p-3 rounded-full hover:bg-white transition-colors text-slate-400">
+                        class="p-3 rounded-full hover:bg-white transition-colors text-slate-500">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7">
                             </path>
                         </svg>
                     </button>
-                    <h2 class="text-2xl font-bold text-slate-800">レベル選択</h2>
+                    <h2 class="text-2xl font-bold text-slate-800">問題選択</h2>
                 </div>
 
                 <div class="flex flex-col gap-4">
@@ -186,9 +186,20 @@
         <div id="quiz-screen" class="screen">
             <div class="premium-card flex flex-col gap-8">
                 <div class="flex justify-between items-center">
-                    <div class="bg-white px-4 py-2 rounded-xl text-xs font-bold text-slate-300 border border-slate-100">
-                        Q <span id="question-number" class="text-indigo-600 text-lg">1</span> / <span
-                            id="total-questions">10</span>
+                    <div class="flex items-center gap-3">
+                        <button id="quiz-back-btn"
+                            class="p-2 -ml-2 rounded-full hover:bg-slate-50 transition-colors text-slate-500"
+                            title="中断して戻る">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+                        <div
+                            class="bg-white px-4 py-2 rounded-xl text-xs font-bold text-slate-500 border border-slate-100">
+                            Q <span id="question-number" class="text-indigo-600 text-lg">1</span> / <span
+                                id="total-questions">10</span>
+                        </div>
                     </div>
                     <div class="bg-indigo-50 px-4 py-2 rounded-xl text-indigo-700 font-bold flex items-center gap-2">
                         <span class="rotate-animation">⏱️</span>
@@ -259,7 +270,17 @@
         <div id="sorting-screen" class="screen">
             <div class="premium-card flex flex-col items-center">
                 <div class="w-full flex justify-between items-center mb-10">
-                    <h2 class="text-xl font-bold text-slate-800">仕分けモード</h2>
+                    <div class="flex items-center gap-3">
+                        <button id="sorting-back-btn"
+                            class="p-2 -ml-2 rounded-full hover:bg-slate-50 transition-colors text-slate-500"
+                            title="中断して戻る">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+                        <h2 class="text-xl font-bold text-slate-800">仕分けモード</h2>
+                    </div>
                     <div class="bg-indigo-50 px-4 py-2 rounded-xl text-indigo-700 font-bold font-mono"
                         id="sorting-timer-display">00:00</div>
                 </div>
@@ -332,8 +353,18 @@
         <div id="calc-screen" class="screen">
             <div class="premium-card flex flex-col gap-6">
                 <div class="flex justify-between items-center">
-                    <div class="text-xs font-bold text-slate-300">問題 <span id="calc-current"
-                            class="text-indigo-600 text-sm">1</span> / <span id="calc-total">5</span></div>
+                    <div class="flex items-center gap-3">
+                        <button id="calc-back-btn"
+                            class="p-2 -ml-2 rounded-full hover:bg-slate-50 transition-colors text-slate-500"
+                            title="中断して戻る">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="text-xs font-bold text-slate-500">問題 <span id="calc-current"
+                                class="text-indigo-600 text-sm">1</span> / <span id="calc-total">5</span></div>
+                    </div>
                     <div class="bg-indigo-50 px-4 py-2 rounded-xl text-indigo-700 font-bold font-mono"
                         id="calc-timer-display">00:00</div>
                 </div>
@@ -504,7 +535,17 @@
         <div id="journal-screen" class="screen">
             <div class="premium-card flex flex-col gap-6 !max-w-xl">
                 <div class="flex justify-between items-center">
-                    <h2 id="journal-title" class="text-lg font-extrabold text-slate-800">仕訳問題</h2>
+                    <div class="flex items-center gap-3">
+                        <button id="journal-back-btn"
+                            class="p-2 -ml-2 rounded-full hover:bg-slate-50 transition-colors text-slate-500"
+                            title="中断して戻る">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+                        <h2 id="journal-title" class="text-lg font-extrabold text-slate-800">仕訳問題</h2>
+                    </div>
                     <div id="journal-timer-display"
                         class="bg-indigo-50 px-4 py-2 rounded-xl text-indigo-700 font-bold font-mono">00:00</div>
                 </div>

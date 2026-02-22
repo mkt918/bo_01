@@ -248,6 +248,10 @@ function initEventListeners() {
                 case 'calc-menu-btn':
                 case 'journal-menu-btn': updateMenu(); showScreen('menu'); break;
                 case 'check-answers-btn': checkSortingAnswers(); break;
+                case 'quiz-back-btn':
+                case 'sorting-back-btn':
+                case 'calc-back-btn':
+                case 'journal-back-btn':
                 case 'back-from-sorting-btn':
                 case 'back-from-calc-btn':
                 case 'back-from-journal-btn': showScreen('level'); break;
