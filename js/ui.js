@@ -5,9 +5,10 @@ import { STORAGE_KEYS } from './data.js';
 import { loadFromStorage } from './storage.js';
 
 // ===== ボタンCSS定数 =====
-export const BTN_PRIMARY = 'btn bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all';
-export const BTN_SECONDARY = 'btn bg-white border border-slate-200 text-slate-700 rounded-2xl py-4 font-bold hover:bg-slate-50 transition-all';
-export const BTN_WRONG = 'btn bg-white border border-rose-200 text-rose-600 rounded-2xl py-4 font-bold hover:bg-rose-50 transition-all';
+// ===== ボタンCSS定数 (New Design) =====
+export const BTN_PRIMARY = 'btn-premium w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2';
+export const BTN_SECONDARY = 'btn-glass w-full py-4 rounded-xl font-bold text-slate-500';
+export const BTN_WRONG = 'w-full py-4 rounded-xl font-bold border-2 border-rose-100 bg-rose-50/50 text-rose-600 hover:bg-rose-50 transition-all';
 
 // ===== 画面要素 =====
 export const screens = {
@@ -135,7 +136,7 @@ export function renderResultScreen({ title, accuracy, elapsed, correct, total, r
 
     const rankEl = document.getElementById('result-rank');
     rankEl.textContent = rank.grade;
-    rankEl.className = `rank text-7xl font-black bg-gradient-to-br from-yellow-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm rank-${rank.grade.toLowerCase()}`;
+    rankEl.className = `rank-splash rank-${rank.grade.toLowerCase()}`;
     document.getElementById('result-rank-message').textContent = rank.message;
 
     const extraEl = document.getElementById('result-extra');

@@ -1,81 +1,101 @@
 /* 
- * Bookkeeping Quiz - Premium White Theme
- * Leverages Tailwind CSS for utilities, custom styles for animations and specific UI components.
+ * Bookkeeping Quiz - Premium Light Edition
+ * Design: High-end, Clean, and Scientific
+ * Fonts: Space Grotesk (En/Num), Noto Sans JP (Ja)
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap');
 
 :root {
-    /* Main Palette */
-    --primary: #6366f1;
-    /* Indigo */
+    /* Core Palette - Pure & Professional */
+    --primary: #4f46e5;
     --primary-light: #818cf8;
-    --primary-dark: #4f46e5;
+    --accent: #0ea5e9;
+    --bg-base: #f8fafc;
+    --text-main: #0f172a;
+    --text-sub: #64748b;
 
-    /* Category Colors - Premium Pastel */
-    --asset-bg: #e0f2fe;
-    /* Sky 100 */
+    /* Category Colors - Refined High-Contrast Pastels */
+    --asset-bg: #f0f9ff;
+    --asset-border: #bae6fd;
     --asset-text: #0369a1;
-    /* Sky 700 */
-    --liability-bg: #fef3c7;
-    /* Amber 100 */
+
+    --liability-bg: #fffbeb;
+    --liability-border: #fef3c7;
     --liability-text: #b45309;
-    /* Amber 700 */
-    --equity-bg: #f3e8ff;
-    /* Purple 100 */
+
+    --equity-bg: #faf5ff;
+    --equity-border: #f3e8ff;
     --equity-text: #7e22ce;
-    /* Purple 700 */
+
     --expense-bg: #fff1f2;
-    /* Rose 50 */
-    --expense-text: #be123c;
-    /* Rose 700 */
-    --revenue-bg: #ecfdf5;
-    /* Emerald 50 */
-    --revenue-text: #047857;
-    /* Emerald 700 */
+    --expense-border: #ffe4e6;
+    --expense-text: #e11d48;
 
-    /* Background & Glassmorphism */
-    --bg-main: #f8fafc;
-    /* Slate 50 */
-    --bg-gradient: radial-gradient(circle at top left, #fdfcfb 0%, #e2d1c3 100%);
-    /* Soft Creamy */
-    /* More premium white gradient */
-    --bg-premium: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
-        radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
-        radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
-    /* Actually for the objective "White-based", let's use a very light bright gradient */
-    --bg-white-gradient: radial-gradient(circle at 10% 20%, rgba(216, 241, 230, 0.46) 0.1%, rgba(233, 226, 226, 0.28) 90.1%);
+    --revenue-bg: #f0fdf4;
+    --revenue-border: #dcfce7;
+    --revenue-text: #15803d;
 
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.5);
-    --shadow-premium: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+    /* Glass Effects */
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --blur-val: 24px;
+
+    --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+    --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.06);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.08);
 }
 
-/* Base Override */
+/* Base Level */
 html {
-    font-size: 14px;
+    font-size: 16px;
+    /* Return to standard 16px */
+    scroll-behavior: smooth;
 }
 
 body {
-    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
-    color: #1e293b;
-    background: #f0f4f8;
+    font-family: 'Space Grotesk', 'Noto Sans JP', sans-serif;
+    color: var(--text-main);
+    background-color: var(--bg-base);
     background-image:
-        radial-gradient(at 0% 0%, hsla(227, 100%, 95%, 1) 0, transparent 50%),
-        radial-gradient(at 50% 0%, hsla(225, 100%, 98%, 1) 0, transparent 50%),
-        radial-gradient(at 100% 0%, hsla(250, 100%, 96%, 1) 0, transparent 50%);
+        radial-gradient(at 0% 0%, hsla(210, 100%, 98%, 1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(230, 100%, 97%, 1) 0, transparent 50%),
+        radial-gradient(at 50% 100%, hsla(190, 100%, 98%, 1) 0, transparent 50%);
     min-height: 100vh;
     overflow-x: hidden;
     display: flex;
-    align-items: flex-start;
     justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
 }
 
-/* Animations */
-@keyframes fadeIn {
+/* Typography Helpers */
+.font-space {
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.tracking-tight-custom {
+    letter-spacing: -0.02em;
+}
+
+/* Main Glass Container */
+.premium-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--blur-val));
+    -webkit-backdrop-filter: blur(var(--blur-val));
+    border: 1px solid var(--glass-border);
+    border-radius: 2.5rem;
+    padding: 3rem;
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 480px;
+}
+
+/* Animations Core */
+@keyframes slideUp {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(20px);
     }
 
     to {
@@ -84,53 +104,29 @@ body {
     }
 }
 
-@keyframes rotate-animation {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes shake {
-
-    0%,
-    100% {
-        transform: translateX(0);
-    }
-
-    10%,
-    30%,
-    50%,
-    70%,
-    90% {
-        transform: translateX(-5px);
-    }
-
-    20%,
-    40%,
-    60%,
-    80% {
-        transform: translateX(5px);
-    }
-}
-
-@keyframes correctPulse {
+@keyframes pulseGlow {
     0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+        box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
     }
 
     70% {
-        transform: scale(1.05);
-        box-shadow: 0 0 0 20px rgba(34, 197, 94, 0);
+        box-shadow: 0 0 0 15px rgba(79, 70, 229, 0);
     }
 
     100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+        box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+    }
+}
+
+@keyframes bounceItem {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
     }
 }
 
@@ -148,6 +144,134 @@ body {
     }
 }
 
+/* Screen Transitions */
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Buttons Design */
+.btn-premium {
+    @apply transition-all duration-300 active:scale-95;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.3);
+}
+
+.btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px -5px rgba(79, 70, 229, 0.4);
+}
+
+.btn-glass {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    @apply transition-all duration-300 hover:bg-white;
+}
+
+/* Game Components */
+.account-name-pill {
+    background: white;
+    border: 1px solid #e2e8f0;
+    box-shadow: var(--shadow-md);
+    padding: 1.5rem 2rem;
+    border-radius: 1.5rem;
+    font-weight: 800;
+    font-size: 2rem;
+    display: inline-block;
+    color: var(--text-main);
+}
+
+/* B/S, P/L Tables Core */
+.game-table {
+    border: 1px solid #f1f5f9;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.game-table-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-sub);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+}
+
+.table-cell {
+    @apply transition-all duration-300 flex items-center justify-center p-4 relative overflow-hidden;
+    cursor: pointer;
+}
+
+.table-cell:hover {
+    filter: brightness(1.02);
+}
+
+/* Journal Game Specifics */
+.journal-choice-btn {
+    @apply w-full bg-white border border-slate-100 p-5 rounded-2xl transition-all duration-300 flex items-center gap-6 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5;
+}
+
+.journal-choice-btn .choice-label {
+    @apply w-8 h-8 flex-shrink-0 bg-slate-50 rounded-full flex items-center justify-center font-black text-slate-300 text-sm;
+}
+
+.journal-choice-btn .choice-content {
+    @apply flex-1 grid grid-cols-[1fr, auto, 1fr] items-center gap-4;
+}
+
+.journal-choice-btn .choice-side-item {
+    @apply flex justify-between gap-2 text-sm font-bold text-slate-600;
+}
+
+.journal-choice-btn .choice-divider {
+    @apply w-[1px] h-8 bg-slate-100;
+}
+
+.journal-choice-btn.correct-choice {
+    @apply border-emerald-400 bg-emerald-50/50;
+}
+
+.journal-choice-btn.incorrect-choice {
+    @apply border-rose-400 bg-rose-50/50;
+}
+
+/* Sorting Item Styles */
+.dropped-item {
+    @apply bg-white border border-slate-100 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 shadow-sm animate-slide-in;
+}
+
+.dropped-item.correct {
+    @apply border-emerald-400 bg-emerald-50 text-emerald-700;
+}
+
+.dropped-item.incorrect {
+    @apply border-rose-400 bg-rose-50 text-rose-700;
+}
+
+/* Result Screen Specifics */
+.rank-splash {
+    font-size: 8rem;
+    font-weight: 900;
+    background: linear-gradient(to bottom right, #facc15, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.05));
+    line-height: 1;
+}
+
+/* Custom Utilities */
 .float-animation {
     animation: float 4s ease-in-out infinite;
 }
@@ -156,324 +280,90 @@ body {
     animation: rotate-animation 10s linear infinite;
 }
 
-/* Screen Management */
-.screen {
-    display: none;
+/* Assuming rotate-animation is defined elsewhere or will be added */
+
+.glass-input {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid #f1f5f9;
+    border-radius: 1rem;
+    transition: all 0.3s;
 }
 
-.screen.active {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    min-height: 80vh;
-    animation: fadeIn 0.5s ease-out forwards;
+.glass-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
 }
 
-/* Accordion Styles */
-.accordion-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.5s cubic-bezier(0, 1, 0, 1);
+/* Feedbacks */
+.feedback-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10rem;
+    pointer-events: none;
+    z-index: 100;
+    animation: feedbackZoom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-.accordion-content.open {
-    max-height: 1000px;
-    transition: all 0.5s ease-in-out;
+@keyframes feedbackZoom {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
 }
 
-.accordion-header .accordion-icon {
-    transition: transform 0.3s ease;
+/* Drag & Drop Visuals */
+.account-card-drag {
+    background: white;
+    border: 2px solid var(--primary-light);
+    border-radius: 1.25rem;
+    padding: 2rem 3rem;
+    font-size: 2rem;
+    font-weight: 700;
+    cursor: grab;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-lg);
 }
 
-.accordion-header.active .accordion-icon {
-    transform: rotate(180deg);
-}
-
-/* UI Utilities */
-.shadow-soft {
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-}
-
-.badge {
-    animation: fadeIn 0.3s ease-out;
-}
-
-/* Table Specific Polishing */
-.table-cell {
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    user-select: none;
-}
-
-.table-cell.correct {
-    animation: correctPulse 0.5s ease;
-    border: 3px solid #22c55e !important;
-    background-color: #f0fdf4 !important;
-    z-index: 10;
-}
-
-.table-cell.incorrect {
-    animation: shake 0.5s ease;
-    border: 3px solid #ef4444 !important;
-    background-color: #fef2f2 !important;
-    z-index: 10;
-}
-
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(99, 102, 241, 0.2);
-    border-radius: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(99, 102, 241, 0.4);
-}
-
-/* Sorting Mode Placeholder Styles */
-.account-card.dragging {
+.account-card-drag.dragging {
     opacity: 0.5;
-    scale: 0.95;
+    scale: 0.9;
+    cursor: grabbing;
+}
+
+.drop-zone {
+    @apply transition-all duration-300;
+    min-height: 120px;
 }
 
 .drop-zone.drag-over {
-    box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.1);
-    scale: 1.01;
+    background: rgba(79, 70, 229, 0.05);
     border-color: var(--primary);
 }
 
-.dropped-items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: 0.5rem;
-}
-
-.dropped-item {
-    background: white;
-    padding: 0.4rem 0.8rem;
-    border-radius: 0.75rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    border: 1px solid #f1f5f9;
-    animation: fadeIn 0.3s ease-out;
-    transition: all 0.2s ease;
-}
-
-.dropped-item.correct {
-    background-color: #f0fdf4;
-    border-color: #22c55e;
-    color: #166534;
-}
-
-.dropped-item.incorrect {
-    background-color: #fef2f2;
-    border-color: #ef4444;
-    color: #991b1b;
-}
-
-/* Results Rank Coloring */
-.rank-s {
-    color: #fbbf24;
-}
-
-.rank-a {
-    color: #a78bfa;
-}
-
-.rank-b {
-    color: #60a5fa;
-}
-
-.rank-c {
-    color: #4ade80;
-}
-
-.rank-d {
-    color: #9ca3af;
-}
-
-/* Journal Choice Buttons - Responsive adjustments */
-.journal-choice-btn {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.journal-choice-btn:hover {
-    transform: translateX(10px);
-}
-
-.journal-choice-btn.correct-choice {
-    border-color: #22c55e;
-    background-color: #f0fdf4;
-}
-
-.journal-choice-btn.incorrect-choice {
-    border-color: #ef4444;
-    background-color: #fef2f2;
-}
-
-/* ===== レスポンシブ対応 ===== */
-
-/* タブレット (768px - 1024px) */
-@media (min-width: 641px) and (max-width: 1024px) {
-    .glass-card {
-        padding: 2rem;
-        border-radius: 2rem;
-    }
-
-    .stats-table-container {
-        overflow-x: auto;
-    }
-
-    .journal-choice-btn {
+/* Responsiveness */
+@media (max-width: 640px) {
+    body {
         padding: 1rem;
     }
 
-    .choice-content {
-        flex-direction: column;
+    .premium-card {
+        padding: 2rem;
     }
 
-    .calc-main-container {
-        grid-template-columns: 1fr !important;
+    .account-name-pill {
+        font-size: 1.5rem;
+        padding: 1rem 1.5rem;
     }
-}
-
-/* スマートフォン (小) */
-@media (max-width: 480px) {
-    .account-name {
-        font-size: 2rem !important;
-        min-width: 200px;
-    }
-
-    .stats-table th,
-    .stats-table td {
-        font-size: 0.75rem;
-        padding: 0.5rem;
-    }
-
-    .rank {
-        font-size: 4rem !important;
-    }
-
-    .btn {
-        min-height: 44px;
-        /* タッチターゲット拡大 */
-    }
-}
-
-/* Small adjustments for mobile */
-@media (max-width: 640px) {
-    .glass-card {
-        padding: 1.5rem;
-        border-radius: 1.5rem;
-    }
-
-    .text-4xl {
-        font-size: 2rem;
-    }
-}
-
-/* ===== トースト通知アニメーション ===== */
-@keyframes slide-in {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slide-out {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-
-    to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-}
-
-.animate-slide-in {
-    animation: slide-in 0.3s ease-out;
-}
-
-.animate-slide-out {
-    animation: slide-out 0.3s ease-in;
-}
-
-.toast {
-    min-width: 200px;
-    max-width: 400px;
-}
-
-/* ===== アクセシビリティ ===== */
-
-/* キーボードフォーカスのスタイル */
-.keyboard-focus {
-    outline: 3px solid var(--primary);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
-}
-
-/* フォーカス表示の強化 */
-button:focus-visible,
-input:focus-visible {
-    outline: 3px solid var(--primary);
-    outline-offset: 2px;
-}
-
-.btn:focus-visible {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
-}
-
-/* 正解/不正解のアイコン追加 */
-.table-cell.correct::before {
-    content: '✓';
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    font-size: 1.5rem;
-    color: #22c55e;
-    font-weight: bold;
-}
-
-.table-cell.incorrect::before {
-    content: '✗';
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    font-size: 1.5rem;
-    color: #ef4444;
-    font-weight: bold;
-}
-
-/* コントラスト比の改善 */
-:root {
-    --asset-text: #0c4a6e;
-    /* Sky 900 */
-    --liability-text: #92400e;
-    /* Amber 800 */
-    --equity-text: #6b21a8;
-    /* Purple 800 */
-    --expense-text: #9f1239;
-    /* Rose 800 */
-    --revenue-text: #065f46;
-    /* Emerald 800 */
 }
