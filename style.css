@@ -52,18 +52,23 @@
 }
 
 /* Base Override */
+html {
+    font-size: 14px;
+}
+
 body {
     font-family: 'Outfit', 'Noto Sans JP', sans-serif;
     color: #1e293b;
-    /* Slate 800 */
     background: #f0f4f8;
-    /* Light pastel gray-blue */
     background-image:
         radial-gradient(at 0% 0%, hsla(227, 100%, 95%, 1) 0, transparent 50%),
         radial-gradient(at 50% 0%, hsla(225, 100%, 98%, 1) 0, transparent 50%),
         radial-gradient(at 100% 0%, hsla(250, 100%, 96%, 1) 0, transparent 50%);
     min-height: 100vh;
     overflow-x: hidden;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
 }
 
 /* Animations */
@@ -158,8 +163,10 @@ body {
 
 .screen.active {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100%;
     min-height: 80vh;
     animation: fadeIn 0.5s ease-out forwards;
 }

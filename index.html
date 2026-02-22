@@ -23,25 +23,25 @@
 <body>
     <div class="container min-h-screen flex items-center justify-center p-4">
         <!-- メニュー画面 -->
-        <div id="menu-screen" class="screen active w-full max-w-lg">
+        <div id="menu-screen" class="screen active w-full max-w-md">
             <div
-                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2rem] p-10 shadow-2xl shadow-indigo-100">
+                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2rem] p-8 shadow-2xl shadow-indigo-100 w-full">
                 <h1
-                    class="title text-5xl font-bold text-center mb-2 bg-gradient-to-br from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                    class="title text-3xl font-bold text-center mb-1 bg-gradient-to-br from-indigo-600 to-violet-600 bg-clip-text text-transparent">
                     📚 簿記クイズ</h1>
-                <p class="subtitle text-center text-slate-500 font-medium mb-8">勘定科目の分類マスター</p>
+                <p class="subtitle text-center text-slate-500 text-sm font-medium mb-6">勘定科目の分類マスター</p>
 
-                <div class="menu-buttons flex flex-col gap-4">
+                <div class="menu-buttons flex flex-col gap-3">
                     <button id="start-btn"
-                        class="btn group relative overflow-hidden bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl p-5 text-xl font-bold shadow-xl shadow-indigo-200 hover:-translate-y-1 transition-all duration-300">
-                        <span class="flex items-center justify-center gap-3">
-                            <span class="text-2xl group-hover:scale-125 transition-transform">🚀</span>はじめる
+                        class="btn group relative overflow-hidden bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl p-4 text-base font-bold shadow-xl shadow-indigo-200 hover:-translate-y-1 transition-all duration-300">
+                        <span class="flex items-center justify-center gap-2">
+                            <span class="text-xl group-hover:scale-125 transition-transform">🚀</span>はじめる
                         </span>
                     </button>
                     <button id="weak-review-btn"
                         class="btn group bg-white border border-slate-200 text-slate-700 rounded-2xl p-4 font-semibold hover:bg-slate-50 hover:border-indigo-200 hover:-translate-y-1 transition-all duration-300 relative">
                         <span class="flex items-center justify-center gap-2">
-                            <span class="text-xl group-hover:rotate-12 transition-transform">📉</span>苦手・復習
+                            <span class="text-lg group-hover:rotate-12 transition-transform">📉</span>苦手・復習
                             <span id="wrong-count-badge"
                                 class="badge hidden absolute -top-2 -right-2 bg-rose-500 text-white text-xs px-2 py-1 rounded-full shadow-lg">0</span>
                         </span>
@@ -49,13 +49,13 @@
                     <button id="history-btn"
                         class="btn group bg-white border border-slate-200 text-slate-700 rounded-2xl p-4 font-semibold hover:bg-slate-50 hover:border-indigo-200 hover:-translate-y-1 transition-all duration-300">
                         <span class="flex items-center justify-center gap-2">
-                            <span class="text-xl group-hover:scale-110 transition-transform">📊</span>過去の記録
+                            <span class="text-lg group-hover:scale-110 transition-transform">📊</span>過去の記録
                         </span>
                     </button>
                     <button id="stats-btn"
                         class="btn group bg-white border border-slate-200 text-slate-700 rounded-2xl p-4 font-semibold hover:bg-slate-50 hover:border-indigo-200 hover:-translate-y-1 transition-all duration-300">
                         <span class="flex items-center justify-center gap-2">
-                            <span class="text-xl group-hover:scale-110 transition-transform">📋</span>成績一覧
+                            <span class="text-lg group-hover:scale-110 transition-transform">📋</span>成績一覧
                         </span>
                     </button>
                 </div>
@@ -392,57 +392,6 @@
             </div>
         </div>
 
-        <!-- 仕分け結果画面 -->
-        <div id="sorting-result-screen" class="screen w-full max-w-lg px-4">
-            <div
-                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100 text-center">
-                <h2 class="result-title text-3xl font-bold text-slate-800 mb-8">仕訳完了！</h2>
-
-                <div id="sorting-rank-display" class="rank-display mb-10 transform scale-125">
-                    <span
-                        class="rank-label block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">RANK</span>
-                    <span id="sorting-rank"
-                        class="rank text-7xl font-black bg-gradient-to-br from-yellow-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">S</span>
-                </div>
-
-                <div class="stats grid grid-cols-3 gap-4 mb-10">
-                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
-                        <span class="stat-icon block text-2xl mb-1">✅</span>
-                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正答率</span>
-                        <span id="sorting-accuracy" class="stat-value font-bold text-indigo-600">100%</span>
-                    </div>
-                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
-                        <span class="stat-icon block text-2xl mb-1">⏱️</span>
-                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">タイム</span>
-                        <span id="sorting-final-time" class="stat-value font-bold text-indigo-600">00:00</span>
-                    </div>
-                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
-                        <span class="stat-icon block text-2xl mb-1">🎯</span>
-                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正解数</span>
-                        <span id="sorting-correct-count" class="stat-value font-bold text-indigo-600">21/21</span>
-                    </div>
-                </div>
-
-                <div id="sorting-rank-message" class="rank-message text-slate-500 font-medium mb-10 italic">すばらしい！満点です！
-                </div>
-
-                <!-- 間違えた問題一覧 -->
-                <div id="wrong-answers-list"
-                    class="wrong-answers-list hidden bg-rose-50 rounded-2xl p-6 text-left mb-10">
-                    <h3 class="text-rose-600 font-bold mb-3 flex items-center gap-2">
-                        <span>⚠️</span> 間違えた問題
-                    </h3>
-                    <div id="wrong-answers-content" class="text-sm text-rose-500 space-y-1"></div>
-                </div>
-
-                <div class="result-buttons flex flex-col gap-4">
-                    <button id="sorting-retry-btn"
-                        class="btn bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">もう一度挑戦</button>
-                    <button id="sorting-menu-btn"
-                        class="btn bg-white border border-slate-200 text-slate-700 rounded-2xl py-4 font-bold hover:bg-slate-50 transition-all">メニューに戻る</button>
-                </div>
-            </div>
-        </div>
 
         <!-- 計算モード画面 -->
         <div id="calc-screen" class="screen w-full max-w-4xl px-4">
@@ -575,58 +524,16 @@
             </div>
         </div>
 
-        <!-- 計算モード結果画面 -->
-        <div id="calc-result-screen" class="screen w-full max-w-lg px-4">
-            <div
-                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100 text-center">
-                <h2 class="result-title text-3xl font-bold text-slate-800 mb-8">計算完了！</h2>
-
-                <div id="calc-rank-display" class="rank-display mb-10 transform scale-125">
-                    <span
-                        class="rank-label block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">RANK</span>
-                    <span id="calc-rank"
-                        class="rank text-7xl font-black bg-gradient-to-br from-yellow-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">S</span>
-                </div>
-
-                <div class="stats grid grid-cols-3 gap-4 mb-10">
-                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
-                        <span class="stat-icon block text-2xl mb-1">✅</span>
-                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正解率</span>
-                        <span id="calc-accuracy" class="stat-value font-bold text-indigo-600">100%</span>
-                    </div>
-                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
-                        <span class="stat-icon block text-2xl mb-1">⏱️</span>
-                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">タイム</span>
-                        <span id="calc-final-time" class="stat-value font-bold text-indigo-600">00:00</span>
-                    </div>
-                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
-                        <span class="stat-icon block text-2xl mb-1">🎯</span>
-                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正解数</span>
-                        <span id="calc-correct-count" class="stat-value font-bold text-indigo-600">10/10</span>
-                    </div>
-                </div>
-
-                <div id="calc-rank-message" class="rank-message text-slate-500 font-medium mb-10 italic"></div>
-
-                <div class="result-buttons flex flex-col gap-4">
-                    <button id="calc-retry-btn"
-                        class="btn bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">もう一度挑戦</button>
-                    <button id="calc-menu-btn"
-                        class="btn bg-white border border-slate-200 text-slate-700 rounded-2xl py-4 font-bold hover:bg-slate-50 transition-all">メニューに戻る</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 結果画面 -->
+        <!-- 結果画面 (共有) -->
         <div id="result-screen" class="screen w-full max-w-lg px-4">
             <div
                 class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100 text-center">
-                <h2 class="result-title text-3xl font-bold text-slate-800 mb-8">クイズ完了！</h2>
+                <h2 id="result-title" class="result-title text-3xl font-bold text-slate-800 mb-8"></h2>
 
-                <div id="rank-display" class="rank-display mb-10 transform scale-125">
+                <div class="rank-display mb-10 transform scale-125">
                     <span
                         class="rank-label block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">RANK</span>
-                    <span id="rank"
+                    <span id="result-rank"
                         class="rank text-7xl font-black bg-gradient-to-br from-yellow-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">S</span>
                 </div>
 
@@ -634,32 +541,23 @@
                     <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
                         <span class="stat-icon block text-2xl mb-1">✅</span>
                         <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正答率</span>
-                        <span id="accuracy" class="stat-value font-bold text-indigo-600">100%</span>
+                        <span id="result-accuracy" class="stat-value font-bold text-indigo-600"></span>
                     </div>
                     <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
                         <span class="stat-icon block text-2xl mb-1">⏱️</span>
                         <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">タイム</span>
-                        <span id="final-time" class="stat-value font-bold text-indigo-600">00:00</span>
+                        <span id="result-time" class="stat-value font-bold text-indigo-600"></span>
                     </div>
                     <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
                         <span class="stat-icon block text-2xl mb-1">🎯</span>
                         <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正解数</span>
-                        <span id="correct-count" class="stat-value font-bold text-indigo-600">10/10</span>
+                        <span id="result-correct-count" class="stat-value font-bold text-indigo-600"></span>
                     </div>
                 </div>
 
-                <div id="rank-message" class="rank-message text-slate-500 font-medium mb-10 italic"></div>
-
-                <div class="result-buttons flex flex-col gap-4">
-                    <button id="retry-btn"
-                        class="btn bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">もう一度挑戦</button>
-                    <button id="retry-wrong-result-btn"
-                        class="btn hidden bg-white border border-rose-200 text-rose-600 rounded-2xl py-4 font-bold hover:bg-rose-50 transition-all">
-                        <span class="flex items-center justify-center gap-2">🔄間違えた問題だけ復習</span>
-                    </button>
-                    <button id="menu-btn"
-                        class="btn bg-white border border-slate-200 text-slate-700 rounded-2xl py-4 font-bold hover:bg-slate-50 transition-all">メニューに戻る</button>
-                </div>
+                <div id="result-rank-message" class="rank-message text-slate-500 font-medium mb-6 italic"></div>
+                <div id="result-extra" class="hidden mb-6"></div>
+                <div id="result-buttons" class="result-buttons flex flex-col gap-4"></div>
             </div>
         </div>
 
@@ -787,45 +685,6 @@
             </div>
         </div>
 
-        <!-- 仕訳問題結果画面 -->
-        <div id="journal-result-screen" class="screen w-full max-w-lg px-4">
-            <div
-                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100 text-center">
-                <h2 class="result-title text-3xl font-bold text-slate-800 mb-8">仕訳完了！</h2>
-                <div id="journal-rank-display" class="rank-display mb-10 transform scale-125">
-                    <span
-                        class="rank-label block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">RANK</span>
-                    <span id="journal-rank"
-                        class="rank text-7xl font-black bg-gradient-to-br from-yellow-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">S</span>
-                </div>
-                <div class="stats grid grid-cols-3 gap-4 mb-10">
-                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
-                        <span class="stat-icon block text-2xl mb-1">✅</span>
-                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正解率</span>
-                        <span id="journal-accuracy" class="stat-value font-bold text-indigo-600">100%</span>
-                    </div>
-                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
-                        <span class="stat-icon block text-2xl mb-1">⏱️</span>
-                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">タイム</span>
-                        <span id="journal-final-time" class="stat-value font-bold text-indigo-600">00:00</span>
-                    </div>
-                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
-                        <span class="stat-icon block text-2xl mb-1">🎯</span>
-                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正解数</span>
-                        <span id="journal-correct-count" class="stat-value font-bold text-indigo-600">5/5</span>
-                    </div>
-                </div>
-                <div id="journal-rank-message" class="rank-message text-slate-500 font-medium mb-10 italic"></div>
-                <div class="result-buttons flex flex-col gap-4">
-                    <button id="journal-retry-btn"
-                        class="btn bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">もう一度挑戦</button>
-                    <button id="journal-retry-wrong-btn"
-                        class="btn hidden bg-white border border-rose-200 text-rose-600 rounded-2xl py-4 font-bold hover:bg-rose-50 transition-all">間違えた問題を復習</button>
-                    <button id="journal-menu-btn"
-                        class="btn bg-white border border-slate-200 text-slate-700 rounded-2xl py-4 font-bold hover:bg-slate-50 transition-all">メニューに戻る</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script src="script.js"></script>

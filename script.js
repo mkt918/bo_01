@@ -116,11 +116,8 @@ const screens = {
     history: document.getElementById('history-screen'),
     weak: document.getElementById('weak-screen'),
     sorting: document.getElementById('sorting-screen'),
-    sortingResult: document.getElementById('sorting-result-screen'),
     calc: document.getElementById('calc-screen'),
-    calcResult: document.getElementById('calc-result-screen'),
     'journal-screen': document.getElementById('journal-screen'),
-    'journal-result-screen': document.getElementById('journal-result-screen'),
     statistics: document.getElementById('stats-screen')
 };
 
@@ -140,15 +137,6 @@ const elements = {
     accountName: document.getElementById('account-name'),
     feedback: document.getElementById('feedback'),
     feedbackText: document.getElementById('feedback-text'),
-    // クイズ結果
-    accuracy: document.getElementById('accuracy'),
-    finalTime: document.getElementById('final-time'),
-    correctCount: document.getElementById('correct-count'),
-    rank: document.getElementById('rank'),
-    rankMessage: document.getElementById('rank-message'),
-    retryBtn: document.getElementById('retry-btn'),
-    retryWrongResultBtn: document.getElementById('retry-wrong-result-btn'),
-    menuBtn: document.getElementById('menu-btn'),
     // 仕分けモード
     sortingTimerDisplay: document.getElementById('sorting-timer-display'),
     accountCard: document.getElementById('account-card'),
@@ -157,16 +145,6 @@ const elements = {
     sortingTotal: document.getElementById('sorting-total'),
     checkAnswersBtn: document.getElementById('check-answers-btn'),
     backFromSortingBtn: document.getElementById('back-from-sorting-btn'),
-    // 仕分け結果
-    sortingAccuracy: document.getElementById('sorting-accuracy'),
-    sortingFinalTime: document.getElementById('sorting-final-time'),
-    sortingCorrectCount: document.getElementById('sorting-correct-count'),
-    sortingRank: document.getElementById('sorting-rank'),
-    sortingRankMessage: document.getElementById('sorting-rank-message'),
-    wrongAnswersList: document.getElementById('wrong-answers-list'),
-    wrongAnswersContent: document.getElementById('wrong-answers-content'),
-    sortingRetryBtn: document.getElementById('sorting-retry-btn'),
-    sortingMenuBtn: document.getElementById('sorting-menu-btn'),
     // 計算モード
     calcTimerDisplay: document.getElementById('calc-timer-display'),
     calcCurrent: document.getElementById('calc-current'),
@@ -179,29 +157,12 @@ const elements = {
     calcFeedback: document.getElementById('calc-feedback'),
     calcFeedbackText: document.getElementById('calc-feedback-text'),
     backFromCalcBtn: document.getElementById('back-from-calc-btn'),
-    // 計算結果
-    calcAccuracy: document.getElementById('calc-accuracy'),
-    calcFinalTime: document.getElementById('calc-final-time'),
-    calcCorrectCount: document.getElementById('calc-correct-count'),
-    calcRank: document.getElementById('calc-rank'),
-    calcRankMessage: document.getElementById('calc-rank-message'),
-    calcRetryBtn: document.getElementById('calc-retry-btn'),
-    calcMenuBtn: document.getElementById('calc-menu-btn'),
     // 仕訳問題
     journalChoicesContainer: document.getElementById('journal-choices-container'),
     journalFeedback: document.getElementById('journal-feedback'),
     journalFeedbackText: document.getElementById('journal-feedback-text'),
     nextJournalBtn: document.getElementById('next-journal-btn'),
     backFromJournalBtn: document.getElementById('back-from-journal-btn'),
-    // 仕訳結果
-    journalAccuracy: document.getElementById('journal-accuracy'),
-    journalFinalTime: document.getElementById('journal-final-time'),
-    journalCorrectCount: document.getElementById('journal-correct-count'),
-    journalRank: document.getElementById('journal-rank'),
-    journalRankMessage: document.getElementById('journal-rank-message'),
-    journalRetryBtn: document.getElementById('journal-retry-btn'),
-    journalRetryWrongBtn: document.getElementById('journal-retry-wrong-btn'),
-    journalMenuBtn: document.getElementById('journal-menu-btn'),
     // 履歴・苦手
     historyList: document.getElementById('history-list'),
     clearHistoryBtn: document.getElementById('clear-history-btn'),
@@ -211,6 +172,77 @@ const elements = {
     statsTableBody: document.getElementById('stats-table-body'),
     backFromStatsBtn: document.getElementById('back-from-stats-btn')
 };
+
+// ===== ボタンCSS定数 =====
+const BTN_PRIMARY = 'btn bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all';
+const BTN_SECONDARY = 'btn bg-white border border-slate-200 text-slate-700 rounded-2xl py-4 font-bold hover:bg-slate-50 transition-all';
+const BTN_WRONG = 'btn bg-white border border-rose-200 text-rose-600 rounded-2xl py-4 font-bold hover:bg-rose-50 transition-all';
+
+// ===== タイマーファクトリ =====
+/**
+ * 各ゲームモードの state オブジェクトと表示要素を受け取り、
+ * start()/stop() メソッドを持つタイマーオブジェクトを返す。
+ * @param {{timerInterval:?, startTime:?, elapsedTime:number}} state
+ * @param {HTMLElement|null} displayEl
+ */
+function createTimer(state, displayEl) {
+    return {
+        start() {
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            state.startTime = Date.now();
+            state.timerInterval = setInterval(() => {
+                state.elapsedTime = Math.floor((Date.now() - state.startTime) / 1000);
+                if (displayEl) displayEl.textContent = formatTime(state.elapsedTime);
+            }, 1000);
+        },
+        stop() {
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
+        }
+    };
+}
+
+// ===== 共有結果画面レンダリング =====
+/**
+ * 全ゲームモードの結果を1つの #result-screen に描画する。
+ * @param {object} config
+ * @param {string} config.title
+ * @param {number} config.accuracy
+ * @param {number} config.elapsed
+ * @param {number} config.correct
+ * @param {number} config.total
+ * @param {{grade:string, message:string}} config.rank
+ * @param {Array<{id:string,cls:string,label:string}>} config.buttons
+ * @param {string} [config.extra]
+ */
+function renderResultScreen({ title, accuracy, elapsed, correct, total, rank, buttons, extra = null }) {
+    document.getElementById('result-title').textContent = title;
+    document.getElementById('result-accuracy').textContent = `${accuracy}%`;
+    document.getElementById('result-time').textContent = formatTime(elapsed);
+    document.getElementById('result-correct-count').textContent = `${correct}/${total}`;
+
+    const rankEl = document.getElementById('result-rank');
+    rankEl.textContent = rank.grade;
+    rankEl.className = `rank text-7xl font-black bg-gradient-to-br from-yellow-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm rank-${rank.grade.toLowerCase()}`;
+    document.getElementById('result-rank-message').textContent = rank.message;
+
+    const extraEl = document.getElementById('result-extra');
+    if (extra) {
+        extraEl.innerHTML = extra;
+        extraEl.classList.remove('hidden');
+    } else {
+        extraEl.innerHTML = '';
+        extraEl.classList.add('hidden');
+    }
+
+    document.getElementById('result-buttons').innerHTML = buttons
+        .map(b => `<button id="${b.id}" class="${b.cls}">${b.label}</button>`)
+        .join('');
+
+    showScreen('result');
+}
 
 // ===== ゲーム状態 =====
 let gameState = {
@@ -328,29 +360,12 @@ function startJournalMode(levelId, mode, sectionId = null) {
     elements.journalFeedback.classList.add('hidden');
 
     showJournalQuestion();
-    startJournalTimer();
+    journalTimer.start();
     showScreen('journal-screen');
 }
 
-function startJournalTimer() {
-    // 既存のタイマーがあればクリア
-    if (journalState.timerInterval) {
-        clearInterval(journalState.timerInterval);
-        journalState.timerInterval = null;
-    }
-    journalState.startTime = Date.now();
-    journalState.timerInterval = setInterval(() => {
-        journalState.elapsedTime = Math.floor((Date.now() - journalState.startTime) / 1000);
-        document.getElementById('journal-timer-display').textContent = formatTime(journalState.elapsedTime);
-    }, 1000);
-}
+const journalTimer = createTimer(journalState, document.getElementById('journal-timer-display'));
 
-function stopJournalTimer() {
-    if (journalState.timerInterval) {
-        clearInterval(journalState.timerInterval);
-        journalState.timerInterval = null;
-    }
-}
 
 function showJournalQuestion() {
     journalState.isAnswered = false;
@@ -508,25 +523,11 @@ function proceedToNextJournalQuestion() {
 }
 
 function endJournalGame() {
-    stopJournalTimer();
+    journalTimer.stop();
     const accuracy = Math.round((journalState.correctCount / journalState.totalQuestions) * 100);
     const rank = calculateRank(accuracy, journalState.elapsedTime);
-
     saveHistory(accuracy, rank.grade, document.getElementById('journal-title').textContent);
 
-    document.getElementById('journal-accuracy').textContent = `${accuracy}%`;
-    document.getElementById('journal-final-time').textContent = formatTime(journalState.elapsedTime);
-    document.getElementById('journal-correct-count').textContent = `${journalState.correctCount}/${journalState.totalQuestions}`;
-
-    const rankEl = document.getElementById('journal-rank');
-    if (rankEl) {
-        rankEl.textContent = rank.grade;
-        rankEl.classList.remove('rank-s', 'rank-a', 'rank-b', 'rank-c', 'rank-d');
-        rankEl.classList.add(`rank-${rank.grade.toLowerCase()}`);
-    }
-    document.getElementById('journal-rank-message').textContent = rank.message;
-
-    // 復習モードの場合はスコアを表示せずメニューに戻る
     if (journalState.mode === 'retry') {
         showToast('復習が完了しました！', 'success');
         updateMenu();
@@ -534,21 +535,26 @@ function endJournalGame() {
         return;
     }
 
-    // 間違えた問題がある場合のみ復習ボタンを表示
-    if (journalState.correctCount < journalState.totalQuestions) {
-        elements.journalRetryWrongBtn.classList.remove('hidden');
-    } else {
-        elements.journalRetryWrongBtn.classList.add('hidden');
-    }
+    const hasWrong = journalState.correctCount < journalState.totalQuestions;
+    const buttons = [
+        { id: 'journal-retry-btn', cls: BTN_PRIMARY, label: 'もう一度挑戦' },
+        ...(hasWrong ? [{ id: 'journal-retry-wrong-btn', cls: BTN_WRONG, label: '間違えた問題を復習' }] : []),
+        { id: 'journal-menu-btn', cls: BTN_SECONDARY, label: 'メニューに戻る' }
+    ];
 
-    showScreen('journal-result-screen');
+    renderResultScreen({
+        title: '仕訳完了！',
+        accuracy, elapsed: journalState.elapsedTime,
+        correct: journalState.correctCount, total: journalState.totalQuestions,
+        rank, buttons
+    });
 }
 
 // ===== メイン初期化の拡張 =====
 
 // ===== ローカルストレージ操作 =====
 function validateStorageData(key, data) {
-    switch(key) {
+    switch (key) {
         case STORAGE_KEYS.HISTORY:
             return Array.isArray(data) && data.every(item =>
                 item.date && item.level && typeof item.accuracy === 'number'
@@ -579,7 +585,7 @@ function loadFromStorage(key) {
         console.error(`Failed to load ${key}:`, error);
         try {
             localStorage.removeItem(key);
-        } catch {}
+        } catch { }
         return null;
     }
 }
@@ -812,41 +818,17 @@ function generateQuestions() {
 }
 
 // ===== タイマー =====
-function startTimer() {
-    // 既存のタイマーがあればクリア
-    if (gameState.timerInterval) {
-        clearInterval(gameState.timerInterval);
-        gameState.timerInterval = null;
-    }
-    gameState.startTime = Date.now();
-    gameState.timerInterval = setInterval(() => {
-        gameState.elapsedTime = Math.floor((Date.now() - gameState.startTime) / 1000);
-        elements.timerDisplay.textContent = formatTime(gameState.elapsedTime);
-    }, 1000);
-}
-
-function stopTimer() {
-    if (gameState.timerInterval) {
-        clearInterval(gameState.timerInterval);
-        gameState.timerInterval = null;
-    }
-}
-
+const quizTimer = createTimer(gameState, elements.timerDisplay);
 
 // ===== ゲーム開始 =====
-function startGame() {
-    gameState.currentQuestion = 0;
-    gameState.correctCount = 0;
-    gameState.elapsedTime = 0;
-    gameState.questions = generateQuestions();
-    gameState.totalQuestions = gameState.questions.length;
-    gameState.isAnswered = false;
-    gameState.wrongAnswers = [];
-
-    startGameWithQuestions();
-}
-
-function startGameWithQuestions() {
+/**
+ * @param {boolean} [useExistingQuestions=false] - trueの場合、その前に設定済みの gameState.questions を使用する。
+ */
+function startGame(useExistingQuestions = false) {
+    if (!useExistingQuestions) {
+        gameState.questions = generateQuestions();
+        gameState.totalQuestions = gameState.questions.length;
+    }
     gameState.currentQuestion = 0;
     gameState.correctCount = 0;
     gameState.elapsedTime = 0;
@@ -858,7 +840,7 @@ function startGameWithQuestions() {
     elements.feedback.classList.add('hidden');
 
     showScreen('quiz');
-    startTimer();
+    quizTimer.start();
     showQuestion();
 }
 
@@ -989,24 +971,11 @@ function removeFromWrongAnswers(question) {
 
 // ===== ゲーム終了 =====
 function endGame() {
-    stopTimer();
+    quizTimer.stop();
 
     const accuracy = Math.round((gameState.correctCount / gameState.totalQuestions) * 100);
     const rank = calculateRank(accuracy, gameState.elapsedTime);
-
     saveHistory(accuracy, rank.grade, 'クイズモード');
-
-    elements.accuracy.textContent = `${accuracy}%`;
-    elements.finalTime.textContent = formatTime(gameState.elapsedTime);
-    elements.correctCount.textContent = `${gameState.correctCount}/${gameState.totalQuestions}`;
-
-    const rankEl = elements.rank;
-    if (rankEl) {
-        rankEl.textContent = rank.grade;
-        rankEl.classList.remove('rank-s', 'rank-a', 'rank-b', 'rank-c', 'rank-d');
-        rankEl.classList.add(`rank-${rank.grade.toLowerCase()}`);
-    }
-    elements.rankMessage.textContent = rank.message;
 
     // 復習モードの場合はスコアを表示せずメニューに戻る
     if (gameState.mode === 'retry') {
@@ -1016,13 +985,18 @@ function endGame() {
         return;
     }
 
-    if (gameState.wrongAnswers.length > 0) {
-        elements.retryWrongResultBtn.classList.remove('hidden');
-    } else {
-        elements.retryWrongResultBtn.classList.add('hidden');
-    }
+    const buttons = [
+        { id: 'retry-btn', cls: BTN_PRIMARY, label: 'もう一度挑戦' },
+        ...(gameState.wrongAnswers.length > 0 ? [{ id: 'retry-wrong-result-btn', cls: BTN_WRONG, label: '🔄間違えた問題だけ復習' }] : []),
+        { id: 'menu-btn', cls: BTN_SECONDARY, label: 'メニューに戻る' }
+    ];
 
-    showScreen('result');
+    renderResultScreen({
+        title: 'クイズ完了！',
+        accuracy, elapsed: gameState.elapsedTime,
+        correct: gameState.correctCount, total: gameState.totalQuestions,
+        rank, buttons
+    });
 }
 
 // ===== 履歴保存 =====
@@ -1292,36 +1266,19 @@ function startSortingMode() {
     elements.checkAnswersBtn.classList.add('hidden');
     elements.accountCard.classList.remove('hidden');
 
-    startSortingTimer();
+    sortingTimer.start();
     showNextCard();
     showScreen('sorting');
 }
 
-function startSortingTimer() {
-    // 既存のタイマーがあればクリア
-    if (sortingState.timerInterval) {
-        clearInterval(sortingState.timerInterval);
-        sortingState.timerInterval = null;
-    }
-    sortingState.startTime = Date.now();
-    sortingState.timerInterval = setInterval(() => {
-        sortingState.elapsedTime = Math.floor((Date.now() - sortingState.startTime) / 1000);
-        elements.sortingTimerDisplay.textContent = formatTime(sortingState.elapsedTime);
-    }, 1000);
-}
+const sortingTimer = createTimer(sortingState, elements.sortingTimerDisplay);
 
-function stopSortingTimer() {
-    if (sortingState.timerInterval) {
-        clearInterval(sortingState.timerInterval);
-        sortingState.timerInterval = null;
-    }
-}
 
 function showNextCard() {
     if (sortingState.currentIndex >= sortingState.questions.length) {
         elements.accountCard.classList.add('hidden');
         elements.checkAnswersBtn.classList.remove('hidden');
-        stopSortingTimer();
+        sortingTimer.stop();
         return;
     }
 
@@ -1428,33 +1385,29 @@ function showSortingResult(correctCount, wrongAnswers) {
     gameState.totalQuestions = total;
     saveHistory(accuracy, rank.grade, '仕訳モード');
 
-    elements.sortingAccuracy.textContent = `${accuracy}%`;
-    elements.sortingFinalTime.textContent = formatTime(sortingState.elapsedTime);
-    elements.sortingCorrectCount.textContent = `${correctCount}/${total}`;
+    const extra = wrongAnswers.length > 0
+        ? `<div class="bg-rose-50 rounded-2xl p-6 text-left">
+                <h3 class="text-rose-600 font-bold mb-3 flex items-center gap-2">⚠️ 間違えた問題</h3>
+                <div class="text-sm text-rose-500 space-y-1">
+                    ${wrongAnswers.map(item => `<div class="wrong-answer-item">
+                        <span class="wrong-answer-account">${item.account}</span>
+                        <span class="wrong-answer-info">${item.placed} → <span class="correct-answer">${item.correct}</span></span>
+                    </div>`).join('')}
+                </div>
+            </div>`
+        : null;
 
-    const rankEl = elements.sortingRank;
-    if (rankEl) {
-        rankEl.textContent = rank.grade;
-        rankEl.classList.remove('rank-s', 'rank-a', 'rank-b', 'rank-c', 'rank-d');
-        rankEl.classList.add(`rank-${rank.grade.toLowerCase()}`);
-    }
-    elements.sortingRankMessage.textContent = rank.message;
-
-    if (wrongAnswers.length > 0) {
-        elements.wrongAnswersList.classList.remove('hidden');
-        elements.wrongAnswersContent.innerHTML = wrongAnswers.map(item => `
-            <div class="wrong-answer-item">
-                <span class="wrong-answer-account">${item.account}</span>
-                <span class="wrong-answer-info">
-                    ${item.placed} → <span class="correct-answer">${item.correct}</span>
-                </span>
-            </div>
-        `).join('');
-    } else {
-        elements.wrongAnswersList.classList.add('hidden');
-    }
-
-    showScreen('sortingResult');
+    renderResultScreen({
+        title: '分類完了！',
+        accuracy, elapsed: sortingState.elapsedTime,
+        correct: correctCount, total,
+        rank,
+        buttons: [
+            { id: 'sorting-retry-btn', cls: BTN_PRIMARY, label: 'もう一度挑戦' },
+            { id: 'sorting-menu-btn', cls: BTN_SECONDARY, label: 'メニューに戻る' }
+        ],
+        extra
+    });
 }
 
 // ========================================
@@ -1477,7 +1430,7 @@ function startCalcMode() {
     elements.calcTotal.textContent = calcState.totalQuestions;
     elements.calcTimerDisplay.textContent = '00:00';
 
-    startCalcTimer();
+    calcTimer.start();
     showCalcQuestion();
     showScreen('calc');
 }
@@ -1707,25 +1660,8 @@ function generatePLDiagram(question) {
     `;
 }
 
-function startCalcTimer() {
-    // 既存のタイマーがあればクリア
-    if (calcState.timerInterval) {
-        clearInterval(calcState.timerInterval);
-        calcState.timerInterval = null;
-    }
-    calcState.startTime = Date.now();
-    calcState.timerInterval = setInterval(() => {
-        calcState.elapsedTime = Math.floor((Date.now() - calcState.startTime) / 1000);
-        elements.calcTimerDisplay.textContent = formatTime(calcState.elapsedTime);
-    }, 1000);
-}
+const calcTimer = createTimer(calcState, elements.calcTimerDisplay);
 
-function stopCalcTimer() {
-    if (calcState.timerInterval) {
-        clearInterval(calcState.timerInterval);
-        calcState.timerInterval = null;
-    }
-}
 
 function showCalcError(message) {
     elements.calcFeedback.classList.remove('hidden', 'correct');
@@ -1788,7 +1724,7 @@ function submitCalcAnswer() {
 }
 
 function endCalcMode() {
-    stopCalcTimer();
+    calcTimer.stop();
 
     const accuracy = Math.round((calcState.correctCount / calcState.totalQuestions) * 100);
     const rank = calculateRank(accuracy, calcState.elapsedTime);
@@ -1797,19 +1733,16 @@ function endCalcMode() {
     gameState.totalQuestions = calcState.totalQuestions;
     saveHistory(accuracy, rank.grade, '計算モード');
 
-    elements.calcAccuracy.textContent = `${accuracy}%`;
-    elements.calcFinalTime.textContent = formatTime(calcState.elapsedTime);
-    elements.calcCorrectCount.textContent = `${calcState.correctCount}/${calcState.totalQuestions}`;
-
-    const rankEl = elements.calcRank;
-    if (rankEl) {
-        rankEl.textContent = rank.grade;
-        rankEl.classList.remove('rank-s', 'rank-a', 'rank-b', 'rank-c', 'rank-d');
-        rankEl.classList.add(`rank-${rank.grade.toLowerCase()}`);
-    }
-    elements.calcRankMessage.textContent = rank.message;
-
-    showScreen('calcResult');
+    renderResultScreen({
+        title: '計算完了！',
+        accuracy, elapsed: calcState.elapsedTime,
+        correct: calcState.correctCount, total: calcState.totalQuestions,
+        rank,
+        buttons: [
+            { id: 'calc-retry-btn', cls: BTN_PRIMARY, label: 'もう一度挑戦' },
+            { id: 'calc-menu-btn', cls: BTN_SECONDARY, label: 'メニューに戻る' }
+        ]
+    });
 }
 
 // (イベントリスナーは initEventListeners で一元管理されているため削除)
@@ -2024,8 +1957,8 @@ function startRetryWrong(levelId = null, sectionId = null) {
         journalState.elapsedTime = 0;
         journalState.mode = 'retry';
 
-        // タイマー開始を追加
-        startJournalTimer();
+        // タイマー開始
+        journalTimer.start();
 
         showScreen('journal-screen');
         showJournalQuestion();
@@ -2037,7 +1970,6 @@ function startRetryWrong(levelId = null, sectionId = null) {
         gameState.startTime = Date.now();
         gameState.mode = 'retry';
         gameState.totalQuestions = gameState.questions.length;
-        showScreen('quiz'); // screens.quiz のキーは 'quiz'
-        startGameWithQuestions();
+        startGame(true);
     }
 }
