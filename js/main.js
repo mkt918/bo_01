@@ -309,7 +309,7 @@ function initEventListeners() {
     const calcKeys = document.querySelector('.calc-keys');
     if (calcKeys) {
         calcKeys.addEventListener('click', (e) => {
-            const key = e.target.closest('.calc-key');
+            const key = e.target.closest('.calc-key, .num-key');
             if (!key) return;
             const type = key.dataset.type;
             const val = key.dataset.val;

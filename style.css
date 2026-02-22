@@ -280,7 +280,55 @@ body {
     animation: rotate-animation 10s linear infinite;
 }
 
-/* Assuming rotate-animation is defined elsewhere or will be added */
+/* Calculation Diagrams - Restoring Table Layout */
+.calc-diagram-bs,
+.calc-diagram-pl {
+    @apply grid grid-cols-2 gap-px bg-slate-200 border-2 border-slate-200 rounded-2xl overflow-hidden shadow-sm;
+}
+
+.calc-diagram-capital {
+    @apply flex items-center justify-between gap-2 p-4 bg-slate-50 rounded-2xl border border-slate-100;
+}
+
+.calc-item {
+    @apply bg-white p-4 flex flex-col items-center justify-center gap-1 min-h-[100px] transition-colors;
+}
+
+.calc-item.asset {
+    @apply bg-[var(--asset-bg)];
+}
+
+.calc-item.liability {
+    @apply bg-[var(--liability-bg)];
+}
+
+.calc-item.equity {
+    @apply bg-[var(--equity-bg)];
+}
+
+.calc-item.expense {
+    @apply bg-[var(--expense-bg)];
+}
+
+.calc-item.revenue {
+    @apply bg-[var(--revenue-bg)];
+}
+
+.calc-item-label {
+    @apply text-[10px] font-black uppercase tracking-widest text-slate-400;
+}
+
+.calc-item-value {
+    @apply text-xl font-bold text-slate-700 font-mono;
+}
+
+.calc-item-value.unknown {
+    @apply text-indigo-600 bg-indigo-50 px-4 py-1 rounded-lg border-2 border-dashed border-indigo-200 animate-pulse;
+}
+
+.calc-arrow {
+    @apply text-2xl font-black text-slate-300;
+}
 
 .glass-input {
     background: rgba(255, 255, 255, 0.8);
