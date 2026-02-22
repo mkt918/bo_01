@@ -107,7 +107,7 @@
                             data-level="L2">
                             <div class="flex items-center gap-3">
                                 <span class="text-2xl">📘</span>
-                                <span class="text-lg font-bold text-slate-700">仕訳問題（単元別）</span>
+                                <span class="text-lg font-bold text-slate-700">勘定科目の分類（仕訳モード）</span>
                             </div>
                             <span class="accordion-icon opacity-30">▼</span>
                         </button>
@@ -269,7 +269,7 @@
         <!-- 仕分けモード画面 -->
         <div id="sorting-screen" class="screen">
             <div class="premium-card flex flex-col items-center">
-                <div class="w-full flex justify-between items-center mb-10">
+                <div class="w-full flex justify-between items-center mb-4">
                     <div class="flex items-center gap-3">
                         <button id="sorting-back-btn"
                             class="p-2 -ml-2 rounded-full hover:bg-slate-50 transition-colors text-slate-500"
@@ -279,11 +279,15 @@
                                     d="M15 19l-7-7 7-7"></path>
                             </svg>
                         </button>
-                        <h2 class="text-xl font-bold text-slate-800">仕分けモード</h2>
+                        <h2 class="text-xl font-bold text-slate-800">仕訳モード</h2>
                     </div>
                     <div class="bg-indigo-50 px-4 py-2 rounded-xl text-indigo-700 font-bold font-mono"
                         id="sorting-timer-display">00:00</div>
                 </div>
+                <p
+                    class="text-sm font-bold text-slate-600 mb-8 px-4 text-center leading-relaxed bg-indigo-50/50 py-3 rounded-2xl border border-indigo-100/50">
+                    21連続で正しい場所をクリックしよう！
+                </p>
 
                 <div id="account-card" class="account-card-drag mb-8" draggable="true">
                     <span id="card-account-name">現金</span>
@@ -300,21 +304,20 @@
                         <div class="game-table-header"><span>（借方）</span><span>貸借対照表</span><span>（貸方）</span></div>
                         <div class="grid grid-cols-2 min-h-[140px]">
                             <div class="drop-zone border-r border-slate-100 p-4" data-category="資産">
-                                <div
-                                    class="text-[9px] font-black text-sky-400 uppercase text-center mb-2 tracking-widest">
+                                <div class="text-lg font-black text-sky-500 uppercase text-center mb-3 tracking-widest">
                                     資産</div>
                                 <div class="dropped-items flex flex-wrap gap-1.5" id="dropped-asset"></div>
                             </div>
                             <div class="flex flex-col h-full">
                                 <div class="drop-zone flex-1 border-b border-slate-100 p-4" data-category="負債">
                                     <div
-                                        class="text-[9px] font-black text-amber-400 uppercase text-center mb-2 tracking-widest">
+                                        class="text-lg font-black text-amber-500 uppercase text-center mb-3 tracking-widest">
                                         負債</div>
                                     <div class="dropped-items flex flex-wrap gap-1.5" id="dropped-liability"></div>
                                 </div>
                                 <div class="drop-zone flex-1 p-4" data-category="純資産">
                                     <div
-                                        class="text-[9px] font-black text-purple-400 uppercase text-center mb-2 tracking-widest">
+                                        class="text-lg font-black text-purple-500 uppercase text-center mb-3 tracking-widest">
                                         純資産</div>
                                     <div class="dropped-items flex flex-wrap gap-1.5" id="dropped-equity"></div>
                                 </div>
@@ -328,13 +331,13 @@
                         <div class="grid grid-cols-2 min-h-[100px]">
                             <div class="drop-zone border-r border-slate-100 p-4" data-category="費用">
                                 <div
-                                    class="text-[9px] font-black text-rose-400 uppercase text-center mb-2 tracking-widest">
+                                    class="text-lg font-black text-rose-500 uppercase text-center mb-3 tracking-widest">
                                     費用</div>
                                 <div class="dropped-items flex flex-wrap gap-1.5" id="dropped-expense"></div>
                             </div>
                             <div class="drop-zone p-4" data-category="収益">
                                 <div
-                                    class="text-[9px] font-black text-emerald-400 uppercase text-center mb-2 tracking-widest">
+                                    class="text-lg font-black text-emerald-500 uppercase text-center mb-3 tracking-widest">
                                     収益</div>
                                 <div class="dropped-items flex flex-wrap gap-1.5" id="dropped-revenue"></div>
                             </div>

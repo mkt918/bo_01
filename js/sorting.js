@@ -145,6 +145,14 @@ export function checkSortingAnswers() {
         const item = document.querySelector(`.dropped-item[data-account="${question.account}"]`);
         if (item) item.classList.add(isCorrect ? 'correct' : 'incorrect');
         updateAccountStats(question.account, question.answer, isCorrect);
+
+        if (isCorrect) {
+            removeFromWrongAnswers(question);
+        } else {
+            import('./storage.js').then(storage => {
+                storage.addToWrongAnswers(question, currentLevel ? currentLevel.id : 'L1', 'sorting');
+            });
+        }
     }
 
     setTimeout(() => { showSortingResult(correctCount, wrongAnswers); }, 1500);

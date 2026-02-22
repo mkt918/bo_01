@@ -252,10 +252,16 @@ export function submitCalcAnswer() {
         elements.calcFeedback.classList.remove('hidden', 'incorrect');
         elements.calcFeedback.classList.add('correct');
         elements.calcFeedbackText.textContent = '⭕ 正解！';
+        import('./storage.js').then(storage => {
+            storage.removeFromWrongAnswers(question);
+        });
     } else {
         elements.calcFeedback.classList.remove('hidden', 'correct');
         elements.calcFeedback.classList.add('incorrect');
         elements.calcFeedbackText.textContent = `❌ 不正解... 正解は ${question.answer.toLocaleString()} 円`;
+        import('./storage.js').then(storage => {
+            storage.addToWrongAnswers(question, 'L1', 'calc');
+        });
     }
 
     elements.calcSubmitBtn.disabled = true;

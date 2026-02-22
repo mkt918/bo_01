@@ -126,17 +126,72 @@ function showStatistics() {
             tableBody.appendChild(tr);
         });
     }
-    showScreen('statistics');
-}
+    // ===== 苦手・復習リスト表示 =====
+    function showWeakList() {
+        const wrongAnswers = loadFromStorage(STORAGE_KEYS.WRONG_ANSWERS) || [];
+        const listContainer = document.getElementById('weak-list');
+        if (!listContainer) return;
+        listContainer.innerHTML = '';
 
-function clearHistory() {
-    const history = loadFromStorage(STORAGE_KEYS.HISTORY) || [];
-    const wrongCount = (loadFromStorage(STORAGE_KEYS.WRONG_ANSWERS) || []).length;
-    const statsCount = Object.keys(loadFromStorage(STORAGE_KEYS.ACCOUNT_STATS) || {}).length;
+        if (wrongAnswers.length === 0) {
+            listContainer.innerHTML = `
+            <div class="text-center py-12 opacity-50">
+                <div class="text-4xl mb-4">✨</div>
+                <p class="font-bold text-slate-500">苦手な問題はありません！<br>すべての問題をマスターしました。</p>
+            </div>
+        `;
+        } else {
+            // グルーピング表示
+            const categories = {
+                'sorting': { name: '科目の分類', icon: '📋' },
+                'calc': { name: '計算問題', icon: '🔢' },
+                'journal': { name: '仕訳問題', icon: '📝' },
+                'quiz': { name: 'Q&Aクイズ', icon: '🎯' }
+            };
 
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
-    modal.innerHTML = `
+            const grouped = {};
+            wrongAnswers.forEach(q => {
+                const type = q.取引 ? 'journal' : (q.type ? 'calc' : (q.meta?.sectionId === 'sorting' ? 'sorting' : 'quiz'));
+                if (!grouped[type]) grouped[type] = [];
+                grouped[type].push(q);
+            });
+
+            Object.keys(grouped).forEach(type => {
+                const cat = categories[type] || { name: 'その他', icon: '❓' };
+                const section = document.createElement('div');
+                section.className = 'mb-6';
+                section.innerHTML = `
+                <h3 class="flex items-center gap-2 font-black text-slate-400 text-xs uppercase tracking-widest mb-3">
+                    <span>${cat.icon}</span> ${cat.name} (${grouped[type].length})
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                    ${grouped[type].map(q => `
+                        <div class="bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm text-sm font-bold text-slate-600">
+                            ${q.account || q.取引 || '計算問題'}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+                listContainer.appendChild(section);
+            });
+
+            const startBtn = document.createElement('button');
+            startBtn.className = 'btn-premium w-full py-5 rounded-2xl font-bold text-lg mt-4 shadow-xl';
+            startBtn.innerHTML = '🔄 復習をはじめる';
+            startBtn.onclick = () => startRetryWrong();
+            listContainer.appendChild(startBtn);
+        }
+        showScreen('weak-screen');
+    }
+
+    function clearHistory() {
+        const history = loadFromStorage(STORAGE_KEYS.HISTORY) || [];
+        const wrongCount = (loadFromStorage(STORAGE_KEYS.WRONG_ANSWERS) || []).length;
+        const statsCount = Object.keys(loadFromStorage(STORAGE_KEYS.ACCOUNT_STATS) || {}).length;
+
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+        modal.innerHTML = `
         <div class="bg-white rounded-3xl p-8 max-w-md mx-4 shadow-2xl">
             <h3 class="text-2xl font-bold text-slate-800 mb-4">⚠️ データの完全削除</h3>
             <p class="text-slate-600 mb-6">以下のデータがすべて削除されます:</p>
@@ -152,273 +207,308 @@ function clearHistory() {
             </div>
         </div>
     `;
-    document.body.appendChild(modal);
-    modal.querySelector('.btn-cancel').addEventListener('click', () => modal.remove());
-    modal.querySelector('.btn-confirm').addEventListener('click', () => {
-        localStorage.removeItem(STORAGE_KEYS.HISTORY);
-        localStorage.removeItem(STORAGE_KEYS.WRONG_ANSWERS);
-        localStorage.removeItem(STORAGE_KEYS.ACCOUNT_STATS);
-        modal.remove();
-        showToast('すべてのデータを削除しました', 'success');
-        showHistory();
-        updateMenu();
-    });
-    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-}
-
-// ===== モード振り分け =====
-function startModeGame(levelId, level, mode, sectionId = null) {
-    setCurrentLevel(level);
-    setCurrentMode(mode);
-    setAccountDatabase(level.data || {});
-
-    if (mode === 'quiz') {
-        gameState.mode = 'normal';
-        startGame();
-    } else if (mode === 'sorting') {
-        startSortingMode();
-    } else if (mode === 'calc') {
-        startCalcMode();
-    } else if (mode === 'journal' || mode === 'journal-total') {
-        startJournalMode(levelId, mode, sectionId);
-    }
-}
-
-// ===== 復習開始 =====
-function startRetryWrong(levelId = null, sectionId = null) {
-    let wrongAnswers = loadFromStorage(STORAGE_KEYS.WRONG_ANSWERS) || [];
-    if (wrongAnswers.length === 0) return;
-
-    if (levelId) {
-        wrongAnswers = wrongAnswers.filter(q => q.meta?.levelId === levelId);
-        if (sectionId && sectionId !== 'total') {
-            wrongAnswers = wrongAnswers.filter(q => q.meta?.sectionId === sectionId);
-        }
-    }
-
-    if (wrongAnswers.length === 0) return;
-
-    const firstQuestion = wrongAnswers[0];
-    if (firstQuestion.取引) {
-        journalState.questions = [...wrongAnswers];
-        journalState.totalQuestions = journalState.questions.length;
-        journalState.currentQuestion = 0;
-        journalState.correctCount = 0;
-        journalState.elapsedTime = 0;
-        journalState.mode = 'retry';
-        journalTimer.start();
-        showScreen('journal-screen');
-        import('./journal.js').then(m => m.showJournalQuestion());
-    } else {
-        gameState.questions = [...wrongAnswers];
-        gameState.currentQuestion = 0;
-        gameState.score = 0;
-        gameState.startTime = Date.now();
-        gameState.mode = 'retry';
-        gameState.totalQuestions = gameState.questions.length;
-        startGame(true);
-    }
-}
-
-// ===== イベント委任 =====
-function initEventListeners() {
-    document.body.addEventListener('click', (e) => {
-        const target = e.target;
-
-        // IDボタン
-        const btn = target.closest('button[id]');
-        if (btn) {
-            const id = btn.id;
-            switch (id) {
-                case 'start-btn': showScreen('level'); break;
-                case 'back-to-menu-btn': showScreen('menu'); break;
-                case 'weak-review-btn': showWeakList(); break;
-                case 'history-btn': showHistory(); break;
-                case 'stats-btn': showStatistics(); break;
-                case 'back-from-history-btn': showScreen('menu'); break;
-                case 'back-from-weak-btn': showScreen('menu'); updateMenu(); break;
-                case 'back-from-stats-btn': showScreen('menu'); break;
-                case 'clear-history-btn': clearHistory(); break;
-                case 'next-journal-btn': proceedToNextJournalQuestion(); return;
-                case 'retry-btn':
-                case 'retry-wrong-result-btn':
-                case 'journal-retry-wrong-btn': startRetryWrong(); break;
-                case 'menu-btn':
-                case 'sorting-menu-btn':
-                case 'calc-menu-btn':
-                case 'journal-menu-btn': updateMenu(); showScreen('menu'); break;
-                case 'check-answers-btn': checkSortingAnswers(); break;
-                case 'quiz-back-btn':
-                case 'sorting-back-btn':
-                case 'calc-back-btn':
-                case 'journal-back-btn':
-                case 'back-from-sorting-btn':
-                case 'back-from-calc-btn':
-                case 'back-from-journal-btn': showScreen('level'); break;
-                case 'sorting-retry-btn': startSortingMode(); break;
-                case 'calc-retry-btn': startCalcMode(); break;
-                case 'calc-submit-btn': submitCalcAnswer(); break;
-                case 'journal-retry-btn': {
-                    const lvl = journalState.section ? 'L2' : 'L3';
-                    startJournalMode(lvl, 'journal', journalState.section);
-                    break;
-                }
-            }
-        }
-
-        // 復習ボタン
-        const reviewBtn = target.closest('.start-review-btn');
-        if (reviewBtn) {
-            startRetryWrong(reviewBtn.dataset.level, reviewBtn.dataset.section || null);
-            return;
-        }
-
-        // アコーディオン
-        const accordionHeader = target.closest('.accordion-header');
-        if (accordionHeader && !accordionHeader.classList.contains('disabled')) {
-            const lvlId = accordionHeader.dataset.level;
-            const content = document.getElementById(`accordion-${lvlId}`);
-            document.querySelectorAll('.accordion-header.active').forEach(h => {
-                if (h !== accordionHeader) {
-                    h.classList.remove('active');
-                    const other = document.getElementById(`accordion-${h.dataset.level}`);
-                    if (other) other.classList.remove('open');
-                }
-            });
-            accordionHeader.classList.toggle('active');
-            if (content) content.classList.toggle('open');
-            return;
-        }
-
-        // モードボタン
-        const modeBtn = target.closest('.mode-btn');
-        if (modeBtn && !modeBtn.classList.contains('disabled')) {
-            const lvlId = modeBtn.dataset.level;
-            const mode = modeBtn.dataset.mode;
-            const sectionId = modeBtn.dataset.section;
-            const level = LEVEL_DATA[lvlId];
-            if (level && level.available) startModeGame(lvlId, level, mode, sectionId);
-            return;
-        }
-
-        // クイズセル
-        const tableCell = target.closest('.table-cell');
-        if (tableCell && !gameState.isAnswered) {
-            handleAnswer(tableCell.dataset.answer, tableCell);
-            return;
-        }
-    });
-
-    // 電卓キー
-    const calcKeys = document.querySelector('.calc-keys');
-    if (calcKeys) {
-        calcKeys.addEventListener('click', (e) => {
-            const key = e.target.closest('.calc-key, .num-key');
-            if (!key) return;
-            const type = key.dataset.type;
-            const val = key.dataset.val;
-            if (key.classList.contains('num-key')) handleNumber(val);
-            else if (type === 'operator') handleOperator(val);
-            else if (type === 'equal') handleEqual();
-            else if (type === 'clear') handleClear();
-            else if (type === 'backspace') handleBackspace();
-            updateCalcDisplay();
+        document.body.appendChild(modal);
+        modal.querySelector('.btn-cancel').addEventListener('click', () => modal.remove());
+        modal.querySelector('.btn-confirm').addEventListener('click', () => {
+            localStorage.removeItem(STORAGE_KEYS.HISTORY);
+            localStorage.removeItem(STORAGE_KEYS.WRONG_ANSWERS);
+            localStorage.removeItem(STORAGE_KEYS.ACCOUNT_STATS);
+            modal.remove();
+            showToast('すべてのデータを削除しました', 'success');
+            showHistory();
+            updateMenu();
         });
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
     }
-}
 
-// ===== CSV読込 =====
-async function loadQuestionsFromSpreadsheet(url) {
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-        const response = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeoutId);
+    // ===== モード振り分け =====
+    function startModeGame(levelId, level, mode, sectionId = null) {
+        setCurrentLevel(level);
+        setCurrentMode(mode);
+        setAccountDatabase(level.data || {});
 
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const csvText = await response.text();
-        if (!csvText || csvText.trim().length === 0) throw new Error('Empty CSV data');
-
-        parseCSVToJournal(csvText);
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            showToast('データ読み込みに時間がかかっています', 'error');
-        } else {
-            console.error('CSV読み込みエラー:', error);
-            showToast('オンライン問題の読み込みに失敗しました', 'error');
+        if (mode === 'quiz') {
+            gameState.mode = 'normal';
+            startGame();
+        } else if (mode === 'sorting') {
+            startSortingMode();
+        } else if (mode === 'calc') {
+            startCalcMode();
+        } else if (mode === 'journal' || mode === 'journal-total') {
+            startJournalMode(levelId, mode, sectionId);
         }
-        throw error;
     }
-}
 
-function parseCSVToJournal(csvText) {
-    const lines = csvText.split(/\r?\n/);
-    const questionsBySection = {};
-    let currentQuestion = null;
+    // ===== 復習開始 =====
+    function startRetryWrong(levelId = null, sectionId = null) {
+        let wrongAnswers = loadFromStorage(STORAGE_KEYS.WRONG_ANSWERS) || [];
+        if (wrongAnswers.length === 0) return;
 
-    for (let i = 1; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
-
-        const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(p => p.replace(/^"|"$/g, '').trim());
-        if (parts.length < 6) continue;
-
-        const [rawSection, query, dAcc, dAmtRaw, cAcc, cAmtRaw, explanation] = parts;
-        const section = SECTION_MAP[rawSection] || rawSection;
-
-        if (rawSection || query) {
-            if (currentQuestion) {
-                if (!questionsBySection[currentQuestion.section]) {
-                    questionsBySection[currentQuestion.section] = [];
-                }
-                questionsBySection[currentQuestion.section].push(currentQuestion);
+        // フィルター
+        if (levelId) {
+            wrongAnswers = wrongAnswers.filter(q => q.meta?.levelId === levelId);
+            if (sectionId && sectionId !== 'total') {
+                wrongAnswers = wrongAnswers.filter(q => q.meta?.sectionId === sectionId);
             }
-            currentQuestion = {
-                section: section || 'unknown',
-                取引: query || '',
-                explanation: explanation ? explanation.replace(/^"|"$/g, '').trim() : '',
-                借方: [],
-                貸方: []
-            };
+        }
+
+        if (wrongAnswers.length === 0) return;
+
+        const firstQuestion = wrongAnswers[0];
+
+        // モード判定と起動
+        if (firstQuestion.取引) {
+            // 仕訳モード
+            import('./journal.js').then(m => {
+                m.journalState.questions = [...wrongAnswers];
+                m.journalState.totalQuestions = m.journalState.questions.length;
+                m.journalState.currentQuestion = 0;
+                m.journalState.correctCount = 0;
+                m.journalState.elapsedTime = 0;
+                m.journalState.mode = 'retry';
+                m.journalTimer.start();
+                showScreen('journal-screen');
+                m.showJournalQuestion();
+            });
+        } else if (firstQuestion.type) {
+            // 計算モード
+            import('./calc.js').then(m => {
+                m.calcState.questions = [...wrongAnswers];
+                m.calcState.totalQuestions = m.calcState.questions.length;
+                m.calcState.currentQuestion = 0;
+                m.calcState.correctCount = 0;
+                m.calcState.elapsedTime = 0;
+                m.calcTimer.start();
+                showScreen('calc');
+                m.showCalcQuestion();
+            });
+        } else {
+            // クイズまたは分類
+            if (firstQuestion.meta?.sectionId === 'sorting') {
+                import('./sorting.js').then(m => {
+                    m.sortingState.questions = [...wrongAnswers];
+                    m.sortingState.currentIndex = 0;
+                    m.sortingState.placements = {};
+                    m.sortingState.elapsedTime = 0;
+                    document.querySelectorAll('.dropped-items').forEach(zone => { zone.innerHTML = ''; });
+                    elements.sortingTotal.textContent = m.sortingState.questions.length;
+                    elements.checkAnswersBtn.classList.add('hidden');
+                    elements.accountCard.classList.remove('hidden');
+                    m.sortingTimer.start();
+                    m.showNextCard();
+                    showScreen('sorting');
+                });
+            } else {
+                // Q&Aクイズ
+                import('./quiz.js').then(m => {
+                    m.gameState.questions = [...wrongAnswers];
+                    m.gameState.totalQuestions = m.gameState.questions.length;
+                    m.gameState.mode = 'retry';
+                    m.startGame(true);
+                });
+            }
+        }
+    }
+
+    // ===== イベント委任 =====
+    function initEventListeners() {
+        document.body.addEventListener('click', (e) => {
+            const target = e.target;
+
+            // IDボタン
+            const btn = target.closest('button[id]');
+            if (btn) {
+                const id = btn.id;
+                switch (id) {
+                    case 'start-btn': showScreen('level'); break;
+                    case 'back-to-menu-btn': showScreen('menu'); break;
+                    case 'weak-review-btn': showWeakList(); break;
+                    case 'history-btn': showHistory(); break;
+                    case 'stats-btn': showStatistics(); break;
+                    case 'back-from-history-btn': showScreen('menu'); break;
+                    case 'back-from-weak-btn': showScreen('menu'); updateMenu(); break;
+                    case 'back-from-stats-btn': showScreen('menu'); break;
+                    case 'clear-history-btn': clearHistory(); break;
+                    case 'next-journal-btn': proceedToNextJournalQuestion(); return;
+                    case 'retry-btn':
+                    case 'retry-wrong-result-btn':
+                    case 'journal-retry-wrong-btn': startRetryWrong(); break;
+                    case 'menu-btn':
+                    case 'sorting-menu-btn':
+                    case 'calc-menu-btn':
+                    case 'journal-menu-btn': updateMenu(); showScreen('menu'); break;
+                    case 'check-answers-btn': checkSortingAnswers(); break;
+                    case 'quiz-back-btn':
+                    case 'sorting-back-btn':
+                    case 'calc-back-btn':
+                    case 'journal-back-btn':
+                    case 'back-from-sorting-btn':
+                    case 'back-from-calc-btn':
+                    case 'back-from-journal-btn': showScreen('level'); break;
+                    case 'sorting-retry-btn': startSortingMode(); break;
+                    case 'calc-retry-btn': startCalcMode(); break;
+                    case 'calc-submit-btn': submitCalcAnswer(); break;
+                    case 'journal-retry-btn': {
+                        const lvl = journalState.section ? 'L2' : 'L3';
+                        startJournalMode(lvl, 'journal', journalState.section);
+                        break;
+                    }
+                }
+            }
+
+            // 復習ボタン
+            const reviewBtn = target.closest('.start-review-btn');
+            if (reviewBtn) {
+                startRetryWrong(reviewBtn.dataset.level, reviewBtn.dataset.section || null);
+                return;
+            }
+
+            // アコーディオン
+            const accordionHeader = target.closest('.accordion-header');
+            if (accordionHeader && !accordionHeader.classList.contains('disabled')) {
+                const lvlId = accordionHeader.dataset.level;
+                const content = document.getElementById(`accordion-${lvlId}`);
+                document.querySelectorAll('.accordion-header.active').forEach(h => {
+                    if (h !== accordionHeader) {
+                        h.classList.remove('active');
+                        const other = document.getElementById(`accordion-${h.dataset.level}`);
+                        if (other) other.classList.remove('open');
+                    }
+                });
+                accordionHeader.classList.toggle('active');
+                if (content) content.classList.toggle('open');
+                return;
+            }
+
+            // モードボタン
+            const modeBtn = target.closest('.mode-btn');
+            if (modeBtn && !modeBtn.classList.contains('disabled')) {
+                const lvlId = modeBtn.dataset.level;
+                const mode = modeBtn.dataset.mode;
+                const sectionId = modeBtn.dataset.section;
+                const level = LEVEL_DATA[lvlId];
+                if (level && level.available) startModeGame(lvlId, level, mode, sectionId);
+                return;
+            }
+
+            // クイズセル
+            const tableCell = target.closest('.table-cell');
+            if (tableCell && !gameState.isAnswered) {
+                handleAnswer(tableCell.dataset.answer, tableCell);
+                return;
+            }
+        });
+
+        // 電卓キー
+        const calcKeys = document.querySelector('.calc-keys');
+        if (calcKeys) {
+            calcKeys.addEventListener('click', (e) => {
+                const key = e.target.closest('.calc-key, .num-key');
+                if (!key) return;
+                const type = key.dataset.type;
+                const val = key.dataset.val;
+                if (key.classList.contains('num-key')) handleNumber(val);
+                else if (type === 'operator') handleOperator(val);
+                else if (type === 'equal') handleEqual();
+                else if (type === 'clear') handleClear();
+                else if (type === 'backspace') handleBackspace();
+                updateCalcDisplay();
+            });
+        }
+    }
+
+    // ===== CSV読込 =====
+    async function loadQuestionsFromSpreadsheet(url) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const csvText = await response.text();
+            if (!csvText || csvText.trim().length === 0) throw new Error('Empty CSV data');
+
+            parseCSVToJournal(csvText);
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                showToast('データ読み込みに時間がかかっています', 'error');
+            } else {
+                console.error('CSV読み込みエラー:', error);
+                showToast('オンライン問題の読み込みに失敗しました', 'error');
+            }
+            throw error;
+        }
+    }
+
+    function parseCSVToJournal(csvText) {
+        const lines = csvText.split(/\r?\n/);
+        const questionsBySection = {};
+        let currentQuestion = null;
+
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(p => p.replace(/^"|"$/g, '').trim());
+            if (parts.length < 6) continue;
+
+            const [rawSection, query, dAcc, dAmtRaw, cAcc, cAmtRaw, explanation] = parts;
+            const section = SECTION_MAP[rawSection] || rawSection;
+
+            if (rawSection || query) {
+                if (currentQuestion) {
+                    if (!questionsBySection[currentQuestion.section]) {
+                        questionsBySection[currentQuestion.section] = [];
+                    }
+                    questionsBySection[currentQuestion.section].push(currentQuestion);
+                }
+                currentQuestion = {
+                    section: section || 'unknown',
+                    取引: query || '',
+                    explanation: explanation ? explanation.replace(/^"|"$/g, '').trim() : '',
+                    借方: [],
+                    貸方: []
+                };
+            }
+
+            if (currentQuestion) {
+                if (dAcc && dAmtRaw) currentQuestion.借方.push({ 科目: dAcc, 金額: parseInt(dAmtRaw.replace(/,/g, '')) || 0 });
+                if (cAcc && cAmtRaw) currentQuestion.貸方.push({ 科目: cAcc, 金額: parseInt(cAmtRaw.replace(/,/g, '')) || 0 });
+            }
         }
 
         if (currentQuestion) {
-            if (dAcc && dAmtRaw) currentQuestion.借方.push({ 科目: dAcc, 金額: parseInt(dAmtRaw.replace(/,/g, '')) || 0 });
-            if (cAcc && cAmtRaw) currentQuestion.貸方.push({ 科目: cAcc, 金額: parseInt(cAmtRaw.replace(/,/g, '')) || 0 });
+            if (!questionsBySection[currentQuestion.section]) questionsBySection[currentQuestion.section] = [];
+            questionsBySection[currentQuestion.section].push(currentQuestion);
+        }
+
+        for (const [section, data] of Object.entries(questionsBySection)) {
+            if (LEVEL_DATA['L2']?.sections?.[section]) {
+                LEVEL_DATA['L2'].sections[section].data = data;
+            } else {
+                console.warn(`未知の区分です（無視されました）: ${section}`);
+            }
         }
     }
 
-    if (currentQuestion) {
-        if (!questionsBySection[currentQuestion.section]) questionsBySection[currentQuestion.section] = [];
-        questionsBySection[currentQuestion.section].push(currentQuestion);
-    }
-
-    for (const [section, data] of Object.entries(questionsBySection)) {
-        if (LEVEL_DATA['L2']?.sections?.[section]) {
-            LEVEL_DATA['L2'].sections[section].data = data;
-        } else {
-            console.warn(`未知の区分です（無視されました）: ${section}`);
+    // ===== 初期化 =====
+    async function init() {
+        try {
+            await loadQuestionsFromSpreadsheet(SPREADSHEET_CSV_URL);
+            console.log('L2データ読み込み完了');
+        } catch (error) {
+            console.error('L2データ読み込み失敗:', error);
+            document.querySelectorAll('[data-level="L2"]').forEach(el => {
+                el.disabled = true;
+                el.classList.add('opacity-50', 'cursor-not-allowed');
+                el.title = 'データ読み込みに失敗しました';
+            });
+        } finally {
+            updateMenu();
+            initEventListeners();
+            initDragAndDrop();
         }
     }
-}
 
-// ===== 初期化 =====
-async function init() {
-    try {
-        await loadQuestionsFromSpreadsheet(SPREADSHEET_CSV_URL);
-        console.log('L2データ読み込み完了');
-    } catch (error) {
-        console.error('L2データ読み込み失敗:', error);
-        document.querySelectorAll('[data-level="L2"]').forEach(el => {
-            el.disabled = true;
-            el.classList.add('opacity-50', 'cursor-not-allowed');
-            el.title = 'データ読み込みに失敗しました';
-        });
-    } finally {
-        updateMenu();
-        initEventListeners();
-        initDragAndDrop();
-    }
-}
-
-init();
+    init();
