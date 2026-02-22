@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BOOKKEEPING QUIZ - Premium</title>
+    <title>簿記クイズ - Premium</title>
     <meta name="description" content="簿記の勘定科目を直感的に学べるプレミアム・クイズアプリ">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
@@ -18,10 +18,9 @@
                 <div class="text-6xl mb-6 float-animation">📚</div>
                 <h1
                     class="text-4xl font-extrabold tracking-tight-custom text-center mb-1 bg-clip-text text-transparent bg-gradient-to-br from-indigo-700 to-violet-700">
-                    BOOKKEEPING
+                    簿記クイズ
                 </h1>
-                <p class="text-sm font-semibold tracking-widest text-slate-400 uppercase mb-10">Classification Master
-                </p>
+                <p class="text-sm font-semibold tracking-widest text-slate-400 uppercase mb-10">勘定科目の分類マスター</p>
 
                 <div class="w-full flex flex-col gap-4">
                     <button id="start-btn"
@@ -62,7 +61,7 @@
                             </path>
                         </svg>
                     </button>
-                    <h2 class="text-2xl font-bold text-slate-800">Choose Level</h2>
+                    <h2 class="text-2xl font-bold text-slate-800">レベル選択</h2>
                 </div>
 
                 <div class="flex flex-col gap-4">
@@ -83,19 +82,19 @@
                                     class="mode-btn flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border border-slate-100/50 hover:border-indigo-200 transition-all"
                                     data-level="L1" data-mode="quiz">
                                     <span class="text-xl">🎯</span><span
-                                        class="text-[10px] font-bold text-slate-400">QUIZ</span>
+                                        class="text-[10px] font-bold text-slate-400">クイズ</span>
                                 </button>
                                 <button
                                     class="mode-btn flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border border-slate-100/50 hover:border-indigo-200 transition-all"
                                     data-level="L1" data-mode="sorting">
                                     <span class="text-xl">📋</span><span
-                                        class="text-[10px] font-bold text-slate-400">SORT</span>
+                                        class="text-[10px] font-bold text-slate-400">仕分け</span>
                                 </button>
                                 <button
                                     class="mode-btn flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border border-slate-100/50 hover:border-indigo-200 transition-all"
                                     data-level="L1" data-mode="calc">
                                     <span class="text-xl">🔢</span><span
-                                        class="text-[10px] font-bold text-slate-400">CALC</span>
+                                        class="text-[10px] font-bold text-slate-400">計算</span>
                                 </button>
                             </div>
                         </div>
@@ -120,8 +119,7 @@
                                     <span class="text-2xl">💰</span>
                                     <div class="text-left">
                                         <div class="font-bold text-slate-700">1: 現金</div>
-                                        <div class="text-[10px] font-bold text-slate-300 uppercase">Cash Transactions
-                                        </div>
+                                        <div class="text-[10px] font-bold text-slate-300 uppercase">現金の基本仕訳</div>
                                     </div>
                                 </button>
                                 <button
@@ -130,8 +128,7 @@
                                     <span class="text-2xl">🏦</span>
                                     <div class="text-left">
                                         <div class="font-bold text-slate-700">2: 当座預金</div>
-                                        <div class="text-[10px] font-bold text-slate-300 uppercase">Checking Accounts
-                                        </div>
+                                        <div class="text-[10px] font-bold text-slate-300 uppercase">預け入れ・引き出し</div>
                                     </div>
                                 </button>
                                 <button
@@ -140,8 +137,7 @@
                                     <span class="text-2xl">📋</span>
                                     <div class="text-left">
                                         <div class="font-bold text-slate-700">3: 買掛金</div>
-                                        <div class="text-[10px] font-bold text-slate-300 uppercase">Accounts Payable
-                                        </div>
+                                        <div class="text-[10px] font-bold text-slate-300 uppercase">仕入れ、代金支払い</div>
                                     </div>
                                 </button>
                                 <button
@@ -150,8 +146,7 @@
                                     <span class="text-2xl">📝</span>
                                     <div class="text-left">
                                         <div class="font-bold text-slate-700">4: 売掛金</div>
-                                        <div class="text-[10px] font-bold text-slate-300 uppercase">Accounts Receivable
-                                        </div>
+                                        <div class="text-[10px] font-bold text-slate-300 uppercase">売り上げ、代金回収</div>
                                     </div>
                                 </button>
                             </div>
@@ -177,7 +172,7 @@
                                     <span class="text-4xl">🏆</span>
                                     <div class="text-left">
                                         <div class="font-bold text-xl text-slate-700">総合問題</div>
-                                        <div class="text-xs font-bold text-slate-300 uppercase">Comprehensive Test</div>
+                                        <div class="text-xs font-bold text-slate-300 uppercase">全単元からのランダム出題</div>
                                     </div>
                                 </button>
                             </div>
@@ -207,14 +202,13 @@
                 </div>
 
                 <div class="text-center py-4">
-                    <p class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] mb-4">Select
-                        Classification</p>
+                    <p class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] mb-4">分類を選択してください</p>
                     <div id="account-name" class="account-name-pill scale-110">現金</div>
                 </div>
 
                 <!-- B/S -->
                 <div class="game-table shadow-sm">
-                    <div class="game-table-header"><span>Debit</span><span>Balance Sheet</span><span>Credit</span></div>
+                    <div class="game-table-header"><span>（借方）</span><span>貸借対照表</span><span>（貸方）</span></div>
                     <div class="grid grid-cols-2 h-36">
                         <button class="table-cell bg-[var(--asset-bg)] border-r border-slate-100 group"
                             data-answer="資産">
@@ -237,7 +231,7 @@
 
                 <!-- P/L -->
                 <div class="game-table shadow-sm">
-                    <div class="game-table-header"><span>Debit</span><span>Profit & Loss</span><span>Credit</span></div>
+                    <div class="game-table-header"><span>（借方）</span><span>損益計算書</span><span>（貸方）</span></div>
                     <div class="grid grid-cols-2 h-28">
                         <div class="flex flex-col h-full border-r border-slate-100">
                             <button class="table-cell flex-1 bg-[var(--expense-bg)] group" data-answer="費用">
@@ -265,7 +259,7 @@
         <div id="sorting-screen" class="screen">
             <div class="premium-card flex flex-col items-center">
                 <div class="w-full flex justify-between items-center mb-10">
-                    <h2 class="text-xl font-bold text-slate-800">Sorting Mode</h2>
+                    <h2 class="text-xl font-bold text-slate-800">仕分けモード</h2>
                     <div class="bg-indigo-50 px-4 py-2 rounded-xl text-indigo-700 font-bold font-mono"
                         id="sorting-timer-display">00:00</div>
                 </div>
@@ -275,33 +269,32 @@
                 </div>
 
                 <div class="text-xs font-bold text-slate-300 uppercase mb-12">
-                    <span id="sorting-current" class="text-indigo-600 text-sm">1</span> / <span
-                        id="sorting-total">21</span> Items
+                    残り <span id="sorting-current" class="text-indigo-600 text-sm">1</span> / <span
+                        id="sorting-total">21</span> 項目
                 </div>
 
                 <div class="w-full flex flex-col gap-4">
                     <!-- B/S Zone -->
                     <div class="game-table">
-                        <div class="game-table-header"><span>Debit</span><span>Balance Sheet</span><span>Credit</span>
-                        </div>
+                        <div class="game-table-header"><span>（借方）</span><span>貸借対照表</span><span>（貸方）</span></div>
                         <div class="grid grid-cols-2 min-h-[140px]">
                             <div class="drop-zone border-r border-slate-100 p-4" data-category="資産">
                                 <div
                                     class="text-[9px] font-black text-sky-400 uppercase text-center mb-2 tracking-widest">
-                                    Assets</div>
+                                    資産</div>
                                 <div class="dropped-items flex flex-wrap gap-1.5" id="dropped-asset"></div>
                             </div>
                             <div class="flex flex-col h-full">
                                 <div class="drop-zone flex-1 border-b border-slate-100 p-4" data-category="負債">
                                     <div
                                         class="text-[9px] font-black text-amber-400 uppercase text-center mb-2 tracking-widest">
-                                        Liabilities</div>
+                                        負債</div>
                                     <div class="dropped-items flex flex-wrap gap-1.5" id="dropped-liability"></div>
                                 </div>
                                 <div class="drop-zone flex-1 p-4" data-category="純資産">
                                     <div
                                         class="text-[9px] font-black text-purple-400 uppercase text-center mb-2 tracking-widest">
-                                        Equity</div>
+                                        純資産</div>
                                     <div class="dropped-items flex flex-wrap gap-1.5" id="dropped-equity"></div>
                                 </div>
                             </div>
@@ -310,19 +303,18 @@
 
                     <!-- P/L Zone -->
                     <div class="game-table">
-                        <div class="game-table-header"><span>Debit</span><span>Profit & Loss</span><span>Credit</span>
-                        </div>
+                        <div class="game-table-header"><span>（借方）</span><span>損益計算書</span><span>（貸方）</span></div>
                         <div class="grid grid-cols-2 min-h-[100px]">
                             <div class="drop-zone border-r border-slate-100 p-4" data-category="費用">
                                 <div
                                     class="text-[9px] font-black text-rose-400 uppercase text-center mb-2 tracking-widest">
-                                    Expenses</div>
+                                    費用</div>
                                 <div class="dropped-items flex flex-wrap gap-1.5" id="dropped-expense"></div>
                             </div>
                             <div class="drop-zone p-4" data-category="収益">
                                 <div
                                     class="text-[9px] font-black text-emerald-400 uppercase text-center mb-2 tracking-widest">
-                                    Revenue</div>
+                                    収益</div>
                                 <div class="dropped-items flex flex-wrap gap-1.5" id="dropped-revenue"></div>
                             </div>
                         </div>
@@ -340,7 +332,7 @@
         <div id="calc-screen" class="screen">
             <div class="premium-card flex flex-col gap-6">
                 <div class="flex justify-between items-center">
-                    <div class="text-xs font-bold text-slate-300">CALC <span id="calc-current"
+                    <div class="text-xs font-bold text-slate-300">問題 <span id="calc-current"
                             class="text-indigo-600 text-sm">1</span> / <span id="calc-total">5</span></div>
                     <div class="bg-indigo-50 px-4 py-2 rounded-xl text-indigo-700 font-bold font-mono"
                         id="calc-timer-display">00:00</div>
@@ -357,7 +349,7 @@
                         class="flex items-center gap-3 bg-white p-2 border-2 border-slate-100 rounded-2xl focus-within:border-indigo-500 transition-all">
                         <span
                             class="bg-slate-50 px-4 py-3 rounded-xl text-xs font-black text-slate-400 uppercase min-w-[80px] text-center"
-                            id="calc-input-label">AMOUNT</span>
+                            id="calc-input-label">金額</span>
                         <input type="number" id="calc-answer-input"
                             class="flex-1 bg-transparent px-2 text-2xl font-black text-slate-800 outline-none placeholder-slate-200"
                             placeholder="0">
@@ -428,8 +420,7 @@
         <!-- 結果画面 -->
         <div id="result-screen" class="screen">
             <div class="premium-card flex flex-col items-center">
-                <h2 id="result-title" class="text-2xl font-bold text-slate-800 mb-8 uppercase tracking-widest">Complete
-                </h2>
+                <h2 id="result-title" class="text-2xl font-bold text-slate-800 mb-8 uppercase tracking-widest">終了！</h2>
 
                 <div class="flex flex-col items-center mb-10">
                     <div id="result-rank" class="rank-splash">S</div>
@@ -438,15 +429,15 @@
 
                 <div class="w-full grid grid-cols-3 gap-3 mb-10">
                     <div class="bg-white/50 p-4 rounded-2xl border border-white/60 text-center">
-                        <div class="text-[9px] font-black text-slate-300 uppercase mb-1">Accuracy</div>
+                        <div class="text-[9px] font-black text-slate-300 uppercase mb-1">正解率</div>
                         <div id="result-accuracy" class="text-xl font-black text-slate-700 tracking-tighter">100%</div>
                     </div>
                     <div class="bg-white/50 p-4 rounded-2xl border border-white/60 text-center text-slate-700">
-                        <div class="text-[9px] font-black text-slate-300 uppercase mb-1">Time</div>
+                        <div class="text-[9px] font-black text-slate-300 uppercase mb-1">タイム</div>
                         <div id="result-time" class="text-xl font-black tracking-tighter">00:00</div>
                     </div>
                     <div class="bg-white/50 p-4 rounded-2xl border border-white/60 text-center text-slate-700">
-                        <div class="text-[9px] font-black text-slate-300 uppercase mb-1">Score</div>
+                        <div class="text-[9px] font-black text-slate-300 uppercase mb-1">正解数</div>
                         <div id="result-correct-count" class="text-xl font-black tracking-tighter">10/10</div>
                     </div>
                 </div>
@@ -464,11 +455,10 @@
                     <div class="flex items-center gap-4">
                         <button id="back-from-history-btn"
                             class="p-3 rounded-full hover:bg-white transition-colors text-slate-400">←</button>
-                        <h2 class="text-2xl font-bold text-slate-800">History</h2>
+                        <h2 class="text-2xl font-bold text-slate-800">過去の記録</h2>
                     </div>
                     <button id="clear-history-btn"
-                        class="text-[10px] font-black text-rose-400 uppercase hover:text-rose-600 transition-colors">Reset
-                        All</button>
+                        class="text-[10px] font-black text-rose-400 uppercase hover:text-rose-600 transition-colors">履歴をクリア</button>
                 </div>
                 <div id="history-list" class="flex flex-col gap-3"></div>
             </div>
@@ -480,7 +470,7 @@
                 <div class="flex items-center gap-4 mb-8">
                     <button id="back-from-weak-btn"
                         class="p-3 rounded-full hover:bg-white transition-colors text-slate-400">←</button>
-                    <h2 class="text-2xl font-bold text-slate-800">Review Items</h2>
+                    <h2 class="text-2xl font-bold text-slate-800">苦手・復習リスト</h2>
                 </div>
                 <div id="weak-list" class="flex flex-col gap-4"></div>
             </div>
@@ -492,16 +482,16 @@
                 <div class="flex items-center gap-4 mb-8">
                     <button id="back-from-stats-btn"
                         class="p-3 rounded-full hover:bg-white transition-colors text-slate-400">←</button>
-                    <h2 class="text-2xl font-bold text-slate-800">Statistics</h2>
+                    <h2 class="text-2xl font-bold text-slate-800">成績一覧</h2>
                 </div>
                 <div class="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-soft">
                     <table class="w-full text-left">
                         <thead>
                             <tr class="bg-slate-50/50 border-b border-slate-100">
-                                <th class="p-4 text-[10px] font-black text-slate-400 uppercase">Category</th>
-                                <th class="p-4 text-[10px] font-black text-slate-400 uppercase">Account</th>
-                                <th class="p-4 text-[10px] font-black text-slate-400 uppercase">Total</th>
-                                <th class="p-4 text-[10px] font-black text-slate-400 uppercase">Rate</th>
+                                <th class="p-4 text-[10px] font-black text-slate-400 uppercase">カテゴリー</th>
+                                <th class="p-4 text-[10px] font-black text-slate-400 uppercase">勘定科目</th>
+                                <th class="p-4 text-[10px] font-black text-slate-400 uppercase">回数</th>
+                                <th class="p-4 text-[10px] font-black text-slate-400 uppercase">正答率</th>
                             </tr>
                         </thead>
                         <tbody id="stats-table-body" class="text-sm font-bold text-slate-600"></tbody>
@@ -510,17 +500,17 @@
             </div>
         </div>
 
-        <!-- 仕訳問題画面 (追加) -->
+        <!-- 仕訳問題画面 -->
         <div id="journal-screen" class="screen">
             <div class="premium-card flex flex-col gap-6 !max-w-xl">
                 <div class="flex justify-between items-center">
-                    <h2 id="journal-title" class="text-lg font-extrabold text-slate-800">Journal Game</h2>
+                    <h2 id="journal-title" class="text-lg font-extrabold text-slate-800">仕訳問題</h2>
                     <div id="journal-timer-display"
                         class="bg-indigo-50 px-4 py-2 rounded-xl text-indigo-700 font-bold font-mono">00:00</div>
                 </div>
 
                 <div class="bg-white p-6 rounded-3xl border-2 border-slate-50 shadow-sm">
-                    <div class="text-[9px] font-black text-slate-300 uppercase mb-3">Transaction #<span
+                    <div class="text-[9px] font-black text-slate-300 uppercase mb-3">取引 #<span
                             id="journal-current">1</span> / <span id="journal-total">5</span></div>
                     <p id="journal-transaction-text" class="text-lg font-bold text-slate-700 leading-relaxed"></p>
                 </div>
@@ -529,13 +519,13 @@
 
                 <div id="journal-feedback" class="hidden p-6 rounded-3xl text-center">
                     <p id="journal-feedback-text" class="font-bold"></p>
-                    <button id="next-journal-btn" class="btn-premium w-full py-4 rounded-xl mt-4 font-bold">NEXT
-                        QUESTION</button>
+                    <button id="next-journal-btn"
+                        class="btn-premium w-full py-4 rounded-xl mt-4 font-bold">次の問題へ</button>
                 </div>
 
                 <button id="back-from-journal-btn"
                     class="text-xs font-bold text-slate-300 hover:text-indigo-500 transition-colors uppercase mt-2">←
-                    Back to List</button>
+                    一覧に戻る</button>
             </div>
         </div>
     </div>
