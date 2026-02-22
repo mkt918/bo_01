@@ -1,0 +1,300 @@
+/* 
+ * Bookkeeping Quiz - Premium White Theme
+ * Leverages Tailwind CSS for utilities, custom styles for animations and specific UI components.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap');
+
+:root {
+    /* Main Palette */
+    --primary: #6366f1;
+    /* Indigo */
+    --primary-light: #818cf8;
+    --primary-dark: #4f46e5;
+
+    /* Category Colors - Premium Pastel */
+    --asset-bg: #e0f2fe;
+    /* Sky 100 */
+    --asset-text: #0369a1;
+    /* Sky 700 */
+    --liability-bg: #fef3c7;
+    /* Amber 100 */
+    --liability-text: #b45309;
+    /* Amber 700 */
+    --equity-bg: #f3e8ff;
+    /* Purple 100 */
+    --equity-text: #7e22ce;
+    /* Purple 700 */
+    --expense-bg: #fff1f2;
+    /* Rose 50 */
+    --expense-text: #be123c;
+    /* Rose 700 */
+    --revenue-bg: #ecfdf5;
+    /* Emerald 50 */
+    --revenue-text: #047857;
+    /* Emerald 700 */
+
+    /* Background & Glassmorphism */
+    --bg-main: #f8fafc;
+    /* Slate 50 */
+    --bg-gradient: radial-gradient(circle at top left, #fdfcfb 0%, #e2d1c3 100%);
+    /* Soft Creamy */
+    /* More premium white gradient */
+    --bg-premium: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+    /* Actually for the objective "White-based", let's use a very light bright gradient */
+    --bg-white-gradient: radial-gradient(circle at 10% 20%, rgba(216, 241, 230, 0.46) 0.1%, rgba(233, 226, 226, 0.28) 90.1%);
+
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --shadow-premium: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+}
+
+/* Base Override */
+body {
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    color: #1e293b;
+    /* Slate 800 */
+    background: #f0f4f8;
+    /* Light pastel gray-blue */
+    background-image:
+        radial-gradient(at 0% 0%, hsla(227, 100%, 95%, 1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225, 100%, 98%, 1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(250, 100%, 96%, 1) 0, transparent 50%);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes rotate-animation {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-5px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes correctPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    }
+
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 20px rgba(34, 197, 94, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.float-animation {
+    animation: float 4s ease-in-out infinite;
+}
+
+.rotate-animation {
+    animation: rotate-animation 10s linear infinite;
+}
+
+/* Screen Management */
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Table Specific Polishing */
+.table-cell {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+}
+
+.table-cell.correct {
+    animation: correctPulse 0.5s ease;
+    border: 3px solid #22c55e !important;
+    background-color: #f0fdf4 !important;
+    z-index: 10;
+}
+
+.table-cell.incorrect {
+    animation: shake 0.5s ease;
+    border: 3px solid #ef4444 !important;
+    background-color: #fef2f2 !important;
+    z-index: 10;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.2);
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.4);
+}
+
+/* Sorting Mode Placeholder Styles */
+.account-card.dragging {
+    opacity: 0.5;
+    scale: 0.95;
+}
+
+.drop-zone.drag-over {
+    box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.1);
+    scale: 1.01;
+    border-color: var(--primary);
+}
+
+.dropped-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+}
+
+.dropped-item {
+    background: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    border: 1px solid #f1f5f9;
+    animation: fadeIn 0.3s ease-out;
+    transition: all 0.2s ease;
+}
+
+.dropped-item.correct {
+    background-color: #f0fdf4;
+    border-color: #22c55e;
+    color: #166534;
+}
+
+.dropped-item.incorrect {
+    background-color: #fef2f2;
+    border-color: #ef4444;
+    color: #991b1b;
+}
+
+/* Results Rank Coloring */
+.rank-s {
+    color: #fbbf24;
+}
+
+.rank-a {
+    color: #a78bfa;
+}
+
+.rank-b {
+    color: #60a5fa;
+}
+
+.rank-c {
+    color: #4ade80;
+}
+
+.rank-d {
+    color: #9ca3af;
+}
+
+/* Journal Choice Buttons - Responsive adjustments */
+.journal-choice-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.journal-choice-btn:hover {
+    transform: translateX(10px);
+}
+
+.journal-choice-btn.correct-choice {
+    border-color: #22c55e;
+    background-color: #f0fdf4;
+}
+
+.journal-choice-btn.incorrect-choice {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+}
+
+/* Small adjustments for mobile */
+@media (max-width: 640px) {
+    .glass-card {
+        padding: 1.5rem;
+        border-radius: 1.5rem;
+    }
+
+    .text-4xl {
+        font-size: 2rem;
+    }
+}

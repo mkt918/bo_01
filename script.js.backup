@@ -1,0 +1,1257 @@
+// ===== 繧ｹ繝医Ξ繝ｼ繧ｸ繧ｭ繝ｼ =====
+const STORAGE_KEYS = {
+    HISTORY: 'bookkeeping_quiz_history',
+    WRONG_ANSWERS: 'bookkeeping_quiz_wrong',
+    ACCOUNT_STATS: 'bookkeeping_quiz_stats'
+};
+
+// ===== 繝ｬ繝吶Ν繝・・繧ｿ・育峩謗･蝓九ａ霎ｼ縺ｿ・・=====
+const LEVEL_DATA = {
+    'L1': {
+        name: '繝ｬ繝吶Ν1 - 蝓ｺ遉・,
+        available: true,
+        data: {
+            "雉・肇": ["迴ｾ驥・, "螢ｲ謗幃≡", "蝠・刀", "雋ｸ莉倬≡", "蛯吝刀", "蟒ｺ迚ｩ", "蝨溷慍"],
+            "雋蛯ｵ": ["雋ｷ謗幃≡", "蛟溷・驥・],
+            "邏碑ｳ・肇": ["雉・悽驥・],
+            "蜿守寢": ["蝠・刀螢ｲ雋ｷ逶・, "蜿怜叙謇区焚譁・, "蜿怜叙蛻ｩ諱ｯ"],
+            "雋ｻ逕ｨ": ["邨ｦ譁・, "蠎・相譁・, "莠､騾夊ｲｻ", "騾壻ｿ｡雋ｻ", "謾ｯ謇募ｮｶ雉・, "豌ｴ驕灘・辭ｱ雋ｻ", "髮題ｲｻ", "謾ｯ謇募茜諱ｯ"]
+        }
+    },
+    'L2': {
+        name: '繝ｬ繝吶Ν2 - 蛻晉ｴ・,
+        available: false,
+        data: null
+    },
+    'L3': {
+        name: '繝ｬ繝吶Ν3 - 荳ｭ邏・,
+        available: false,
+        data: null
+    }
+};
+
+// ===== 蜍伜ｮ夂ｧ醍岼繝・・繧ｿ繝吶・繧ｹ =====
+let accountDatabase = {};
+let currentLevel = null;
+let currentMode = null; // 'quiz', 'sorting', 'calc'
+
+// ===== 繧ｲ繝ｼ繝迥ｶ諷・=====
+let gameState = {
+    currentQuestion: 0,
+    correctCount: 0,
+    totalQuestions: 10,
+    questions: [],
+    startTime: null,
+    elapsedTime: 0,
+    timerInterval: null,
+    isAnswered: false,
+    wrongAnswers: [],
+    mode: 'normal'
+};
+
+// ===== 莉募・縺代Δ繝ｼ繝臥憾諷・=====
+let sortingState = {
+    questions: [],
+    currentIndex: 0,
+    placements: {},
+    startTime: null,
+    elapsedTime: 0,
+    timerInterval: null
+};
+
+// ===== 險育ｮ励Δ繝ｼ繝臥憾諷・=====
+let calcState = {
+    currentQuestion: 0,
+    totalQuestions: 10,
+    questions: [],
+    correctCount: 0,
+    startTime: null,
+    elapsedTime: 0,
+    timerInterval: null,
+    userAnswers: {}
+};
+
+
+// ===== DOM隕∫ｴ =====
+const screens = {
+    menu: document.getElementById('menu-screen'),
+    level: document.getElementById('level-screen'),
+    quiz: document.getElementById('quiz-screen'),
+    result: document.getElementById('result-screen'),
+    history: document.getElementById('history-screen'),
+    weak: document.getElementById('weak-screen'),
+    sorting: document.getElementById('sorting-screen'),
+    sortingResult: document.getElementById('sorting-result-screen'),
+    calc: document.getElementById('calc-screen'),
+    calcResult: document.getElementById('calc-result-screen')
+};
+
+const elements = {
+    // 繝｡繝九Η繝ｼ
+    startBtn: document.getElementById('start-btn'),
+    retryWrongBtn: document.getElementById('retry-wrong-btn'),
+    weakListBtn: document.getElementById('weak-list-btn'),
+    historyBtn: document.getElementById('history-btn'),
+    wrongCountBadge: document.getElementById('wrong-count-badge'),
+
+    // 繝ｬ繝吶Ν驕ｸ謚・
+    backToMenuBtn: document.getElementById('back-to-menu-btn'),
+
+    // 繧ｯ繧､繧ｺ
+    questionNumber: document.getElementById('question-number'),
+    totalQuestions: document.getElementById('total-questions'),
+    timerDisplay: document.getElementById('timer-display'),
+    progressFill: document.getElementById('progress-fill'),
+    accountName: document.getElementById('account-name'),
+    feedback: document.getElementById('feedback'),
+    feedbackText: document.getElementById('feedback-text'),
+
+    // 邨先棡
+    rank: document.getElementById('rank'),
+    accuracy: document.getElementById('accuracy'),
+    finalTime: document.getElementById('final-time'),
+    correctCount: document.getElementById('correct-count'),
+    rankMessage: document.getElementById('rank-message'),
+    retryBtn: document.getElementById('retry-btn'),
+    retryWrongResultBtn: document.getElementById('retry-wrong-result-btn'),
+    menuBtn: document.getElementById('menu-btn'),
+
+    // 螻･豁ｴ
+    historyList: document.getElementById('history-list'),
+    clearHistoryBtn: document.getElementById('clear-history-btn'),
+    backFromHistoryBtn: document.getElementById('back-from-history-btn'),
+
+    // 闍ｦ謇・
+    weakList: document.getElementById('weak-list'),
+    backFromWeakBtn: document.getElementById('back-from-weak-btn'),
+
+    // 莉募・縺代Δ繝ｼ繝・
+    accountCard: document.getElementById('account-card'),
+    cardAccountName: document.getElementById('card-account-name'),
+    sortingTimerDisplay: document.getElementById('sorting-timer-display'),
+    sortingCurrent: document.getElementById('sorting-current'),
+    sortingTotal: document.getElementById('sorting-total'),
+    checkAnswersBtn: document.getElementById('check-answers-btn'),
+    backFromSortingBtn: document.getElementById('back-from-sorting-btn'),
+
+    // 莉募・縺醍ｵ先棡
+    sortingRank: document.getElementById('sorting-rank'),
+    sortingAccuracy: document.getElementById('sorting-accuracy'),
+    sortingFinalTime: document.getElementById('sorting-final-time'),
+    sortingCorrectCount: document.getElementById('sorting-correct-count'),
+    sortingRankMessage: document.getElementById('sorting-rank-message'),
+    wrongAnswersList: document.getElementById('wrong-answers-list'),
+    wrongAnswersContent: document.getElementById('wrong-answers-content'),
+    sortingRetryBtn: document.getElementById('sorting-retry-btn'),
+    sortingMenuBtn: document.getElementById('sorting-menu-btn'),
+
+    // 險育ｮ励Δ繝ｼ繝・
+    calcTimerDisplay: document.getElementById('calc-timer-display'),
+    calcCurrent: document.getElementById('calc-current'),
+    calcTotal: document.getElementById('calc-total'),
+    calcQuestionText: document.getElementById('calc-question-text'),
+    calcDiagram: document.getElementById('calc-diagram'),
+    calcInputLabel: document.getElementById('calc-input-label'),
+    calcAnswerInput: document.getElementById('calc-answer-input'),
+    calcFeedback: document.getElementById('calc-feedback'),
+    calcFeedbackText: document.getElementById('calc-feedback-text'),
+    calcSubmitBtn: document.getElementById('calc-submit-btn'),
+    backFromCalcBtn: document.getElementById('back-from-calc-btn'),
+
+    // 險育ｮ礼ｵ先棡
+    calcRank: document.getElementById('calc-rank'),
+    calcAccuracy: document.getElementById('calc-accuracy'),
+    calcFinalTime: document.getElementById('calc-final-time'),
+    calcCorrectCount: document.getElementById('calc-correct-count'),
+    calcRankMessage: document.getElementById('calc-rank-message'),
+    calcRetryBtn: document.getElementById('calc-retry-btn'),
+    calcMenuBtn: document.getElementById('calc-menu-btn')
+};
+
+// ===== 繝ｭ繝ｼ繧ｫ繝ｫ繧ｹ繝医Ξ繝ｼ繧ｸ謫堺ｽ・=====
+function loadFromStorage(key) {
+    try {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : null;
+    } catch {
+        return null;
+    }
+}
+
+function saveToStorage(key, data) {
+    try {
+        localStorage.setItem(key, JSON.stringify(data));
+    } catch (e) {
+        console.error('菫晏ｭ倥↓螟ｱ謨励＠縺ｾ縺励◆:', e);
+    }
+}
+
+// ===== 繧｢繧ｳ繝ｼ繝・ぅ繧ｪ繝ｳ蛻晄悄蛹・=====
+function initAccordion() {
+    document.querySelectorAll('.accordion-header:not(.disabled)').forEach(header => {
+        header.addEventListener('click', () => {
+            const levelId = header.dataset.level;
+            const content = document.getElementById(`accordion-${levelId}`);
+
+            // 莉悶・繧｢繧ｳ繝ｼ繝・ぅ繧ｪ繝ｳ繧帝哩縺倥ｋ
+            document.querySelectorAll('.accordion-header.active').forEach(h => {
+                if (h !== header) {
+                    h.classList.remove('active');
+                    const otherContent = document.getElementById(`accordion-${h.dataset.level}`);
+                    if (otherContent) otherContent.classList.remove('open');
+                }
+            });
+
+            // 繝医げ繝ｫ
+            header.classList.toggle('active');
+            if (content) content.classList.toggle('open');
+        });
+    });
+
+    // 繝｢繝ｼ繝峨・繧ｿ繝ｳ
+    document.querySelectorAll('.mode-btn:not(.disabled)').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const levelId = btn.dataset.level;
+            const mode = btn.dataset.mode;
+            const level = LEVEL_DATA[levelId];
+
+            if (level && level.available) {
+                startModeGame(levelId, level, mode);
+            }
+        });
+    });
+}
+
+// ===== 繝｢繝ｼ繝峨ご繝ｼ繝髢句ｧ・=====
+function startModeGame(levelId, level, mode) {
+    currentLevel = level;
+    currentMode = mode;
+    accountDatabase = level.data;
+
+    if (mode === 'quiz') {
+        gameState.mode = 'normal';
+        startGame();
+    } else if (mode === 'sorting') {
+        startSortingMode();
+    } else if (mode === 'calc') {
+        startCalcMode();
+    }
+}
+
+
+// ===== 繝ｦ繝ｼ繝・ぅ繝ｪ繝・ぅ髢｢謨ｰ =====
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function formatDate(date) {
+    const d = new Date(date);
+    return `${d.getFullYear()}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+}
+
+// ===== 逕ｻ髱｢蛻・ｊ譖ｿ縺・=====
+function showScreen(screenName) {
+    Object.values(screens).forEach(screen => screen.classList.remove('active'));
+    screens[screenName].classList.add('active');
+}
+
+// ===== 繝｡繝九Η繝ｼ譖ｴ譁ｰ =====
+function updateMenu() {
+    const wrongAnswers = loadFromStorage(STORAGE_KEYS.WRONG_ANSWERS) || [];
+
+    if (wrongAnswers.length > 0) {
+        elements.wrongCountBadge.textContent = wrongAnswers.length;
+        elements.wrongCountBadge.classList.remove('hidden');
+        elements.retryWrongBtn.disabled = false;
+        elements.retryWrongBtn.style.opacity = '1';
+    } else {
+        elements.wrongCountBadge.classList.add('hidden');
+        elements.retryWrongBtn.disabled = true;
+        elements.retryWrongBtn.style.opacity = '0.5';
+    }
+}
+
+// ===== 蝠城｡檎函謌・=====
+function generateQuestions() {
+    const allQuestions = [];
+
+    for (const [category, accounts] of Object.entries(accountDatabase)) {
+        for (const account of accounts) {
+            allQuestions.push({
+                account: account,
+                answer: category
+            });
+        }
+    }
+
+    const shuffled = shuffleArray(allQuestions);
+    const questionCount = Math.min(gameState.totalQuestions, shuffled.length);
+    return shuffled.slice(0, questionCount);
+}
+
+// ===== 繧ｿ繧､繝槭・ =====
+function startTimer() {
+    gameState.startTime = Date.now();
+    gameState.timerInterval = setInterval(() => {
+        gameState.elapsedTime = Math.floor((Date.now() - gameState.startTime) / 1000);
+        elements.timerDisplay.textContent = formatTime(gameState.elapsedTime);
+    }, 1000);
+}
+
+function stopTimer() {
+    if (gameState.timerInterval) {
+        clearInterval(gameState.timerInterval);
+        gameState.timerInterval = null;
+    }
+}
+
+// ===== 髢馴＆縺医◆蝠城｡後〒蠕ｩ鄙・=====
+function startRetryWrong() {
+    const wrongAnswers = loadFromStorage(STORAGE_KEYS.WRONG_ANSWERS) || [];
+
+    if (wrongAnswers.length === 0) {
+        alert('髢馴＆縺医◆蝠城｡後′縺ゅｊ縺ｾ縺帙ｓ');
+        return;
+    }
+
+    gameState.mode = 'retry';
+    gameState.questions = shuffleArray(wrongAnswers).slice(0, 10);
+    gameState.totalQuestions = gameState.questions.length;
+
+    startGameWithQuestions();
+}
+
+// ===== 繧ｲ繝ｼ繝髢句ｧ・=====
+function startGame() {
+    gameState.currentQuestion = 0;
+    gameState.correctCount = 0;
+    gameState.elapsedTime = 0;
+    gameState.questions = generateQuestions();
+    gameState.totalQuestions = gameState.questions.length;
+    gameState.isAnswered = false;
+    gameState.wrongAnswers = [];
+
+    startGameWithQuestions();
+}
+
+function startGameWithQuestions() {
+    gameState.currentQuestion = 0;
+    gameState.correctCount = 0;
+    gameState.elapsedTime = 0;
+    gameState.isAnswered = false;
+    gameState.wrongAnswers = [];
+
+    elements.timerDisplay.textContent = '00:00';
+    elements.totalQuestions.textContent = gameState.totalQuestions;
+    elements.feedback.classList.add('hidden');
+
+    showScreen('quiz');
+    startTimer();
+    showQuestion();
+}
+
+// ===== 蝠城｡瑚｡ｨ遉ｺ =====
+function showQuestion() {
+    const question = gameState.questions[gameState.currentQuestion];
+
+    elements.questionNumber.textContent = gameState.currentQuestion + 1;
+
+    const progress = ((gameState.currentQuestion + 1) / gameState.totalQuestions) * 100;
+    elements.progressFill.style.width = `${progress}%`;
+
+    elements.accountName.textContent = question.account;
+
+    const tableCells = document.querySelectorAll('.table-cell');
+    tableCells.forEach(cell => {
+        cell.disabled = false;
+        cell.classList.remove('correct', 'incorrect');
+    });
+
+    elements.feedback.classList.add('hidden');
+    elements.feedback.classList.remove('correct', 'incorrect');
+
+    gameState.isAnswered = false;
+}
+
+// ===== 隗｣遲泌・逅・=====
+function handleAnswer(selectedAnswer, clickedCell) {
+    if (gameState.isAnswered) return;
+    gameState.isAnswered = true;
+
+    const question = gameState.questions[gameState.currentQuestion];
+    const isCorrect = selectedAnswer === question.answer;
+
+    const tableCells = document.querySelectorAll('.table-cell');
+    tableCells.forEach(cell => {
+        cell.disabled = true;
+
+        if (cell.dataset.answer === question.answer) {
+            cell.classList.add('correct');
+        }
+
+        if (cell === clickedCell && !isCorrect) {
+            cell.classList.add('incorrect');
+        }
+    });
+
+    updateAccountStats(question.account, question.answer, isCorrect);
+
+    if (isCorrect) {
+        gameState.correctCount++;
+        if (gameState.mode === 'retry') {
+            removeFromWrongAnswers(question);
+        }
+    } else {
+        gameState.wrongAnswers.push(question);
+        addToWrongAnswers(question);
+    }
+
+    elements.feedback.classList.remove('hidden', 'correct', 'incorrect');
+    elements.feedback.classList.add(isCorrect ? 'correct' : 'incorrect');
+    elements.feedbackText.textContent = isCorrect
+        ? '箝・豁｣隗｣・・
+        : `笶・荳肴ｭ｣隗｣... 豁｣隗｣縺ｯ縲・{question.answer}縲港;
+
+    setTimeout(() => {
+        gameState.currentQuestion++;
+
+        if (gameState.currentQuestion >= gameState.totalQuestions) {
+            endGame();
+        } else {
+            showQuestion();
+        }
+    }, 1200);
+}
+
+// ===== 蜍伜ｮ夂ｧ醍岼邨ｱ險域峩譁ｰ =====
+function updateAccountStats(account, category, isCorrect) {
+    const stats = loadFromStorage(STORAGE_KEYS.ACCOUNT_STATS) || {};
+
+    if (!stats[account]) {
+        stats[account] = {
+            category: category,
+            correct: 0,
+            total: 0
+        };
+    }
+
+    stats[account].total++;
+    if (isCorrect) {
+        stats[account].correct++;
+    }
+
+    saveToStorage(STORAGE_KEYS.ACCOUNT_STATS, stats);
+}
+
+// ===== 髢馴＆縺・Μ繧ｹ繝域桃菴・=====
+function addToWrongAnswers(question) {
+    const wrongAnswers = loadFromStorage(STORAGE_KEYS.WRONG_ANSWERS) || [];
+
+    const exists = wrongAnswers.some(q => q.account === question.account);
+    if (!exists) {
+        wrongAnswers.push(question);
+        saveToStorage(STORAGE_KEYS.WRONG_ANSWERS, wrongAnswers);
+    }
+}
+
+function removeFromWrongAnswers(question) {
+    let wrongAnswers = loadFromStorage(STORAGE_KEYS.WRONG_ANSWERS) || [];
+    wrongAnswers = wrongAnswers.filter(q => q.account !== question.account);
+    saveToStorage(STORAGE_KEYS.WRONG_ANSWERS, wrongAnswers);
+}
+
+// ===== 繧ｲ繝ｼ繝邨ゆｺ・=====
+function endGame() {
+    stopTimer();
+
+    const accuracy = Math.round((gameState.correctCount / gameState.totalQuestions) * 100);
+    const rank = calculateRank(accuracy, gameState.elapsedTime);
+
+    saveHistory(accuracy, rank.grade, '繧ｯ繧､繧ｺ繝｢繝ｼ繝・);
+
+    elements.accuracy.textContent = `${accuracy}%`;
+    elements.finalTime.textContent = formatTime(gameState.elapsedTime);
+    elements.correctCount.textContent = `${gameState.correctCount}/${gameState.totalQuestions}`;
+
+    elements.rank.textContent = rank.grade;
+    elements.rank.className = `rank rank-${rank.grade.toLowerCase()}`;
+    elements.rankMessage.textContent = rank.message;
+
+    if (gameState.wrongAnswers.length > 0) {
+        elements.retryWrongResultBtn.classList.remove('hidden');
+    } else {
+        elements.retryWrongResultBtn.classList.add('hidden');
+    }
+
+    showScreen('result');
+}
+
+// ===== 螻･豁ｴ菫晏ｭ・=====
+function saveHistory(accuracy, rank, mode) {
+    const history = loadFromStorage(STORAGE_KEYS.HISTORY) || [];
+
+    history.unshift({
+        date: new Date().toISOString(),
+        level: currentLevel ? currentLevel.name : (mode || '荳肴・'),
+        accuracy: accuracy,
+        time: gameState.elapsedTime || sortingState.elapsedTime,
+        rank: rank,
+        correct: gameState.correctCount,
+        total: gameState.totalQuestions
+    });
+
+    if (history.length > 50) {
+        history.pop();
+    }
+
+    saveToStorage(STORAGE_KEYS.HISTORY, history);
+}
+
+// ===== 繝ｩ繝ｳ繧ｯ險育ｮ・=====
+function calculateRank(accuracy, time) {
+    if (accuracy === 100 && time <= 30) {
+        return {
+            grade: 'S',
+            message: '脂 繝代・繝輔ぉ繧ｯ繝茨ｼ∫ｰｿ險倥・繧ｹ繧ｿ繝ｼ縺ｧ縺呻ｼ・ｩ夂焚逧・↑繧ｹ繝斐・繝峨→豁｣遒ｺ縺包ｼ・
+        };
+    } else if (accuracy >= 90 || accuracy === 100) {
+        return {
+            grade: 'A',
+            message: '検 邏譎ｴ繧峨＠縺・ｼ∝鋸螳夂ｧ醍岼繧偵＠縺｣縺九ｊ逅・ｧ｣縺励※縺・∪縺呻ｼ・
+        };
+    } else if (accuracy >= 70) {
+        return {
+            grade: 'B',
+            message: '総 濶ｯ縺・・邵ｾ縺ｧ縺呻ｼ√ｂ縺・ｰ代＠縺ｧ荳贋ｽ阪Λ繝ｳ繧ｯ・・
+        };
+    } else if (accuracy >= 50) {
+        return {
+            grade: 'C',
+            message: '答 縺ｾ縺壹∪縺壹・邨先棡縲ょｾｩ鄙偵＠縺ｦ蜀肴倦謌ｦ縺励∪縺励ｇ縺・ｼ・
+        };
+    } else {
+        return {
+            grade: 'D',
+            message: '潮 蝓ｺ遉弱°繧牙ｾｩ鄙偵′蠢・ｦ√〒縺吶る大ｼｵ繧翫∪縺励ｇ縺・ｼ・
+        };
+    }
+}
+
+// ===== 螻･豁ｴ陦ｨ遉ｺ =====
+function showHistory() {
+    const history = loadFromStorage(STORAGE_KEYS.HISTORY) || [];
+
+    if (history.length === 0) {
+        elements.historyList.innerHTML = '<p class="empty-message">縺ｾ縺險倬鹸縺後≠繧翫∪縺帙ｓ</p>';
+    } else {
+        elements.historyList.innerHTML = history.map(item => `
+            <div class="history-item">
+                <div class="history-info">
+                    <span class="history-date">${formatDate(item.date)}</span>
+                    <span class="history-level">${item.level}</span>
+                </div>
+                <div class="history-stats">
+                    <span class="history-accuracy">${item.accuracy}%</span>
+                    <span class="history-time">${formatTime(item.time)}</span>
+                </div>
+                <span class="history-rank rank-${item.rank.toLowerCase()}">${item.rank}</span>
+            </div>
+        `).join('');
+    }
+
+    showScreen('history');
+}
+
+// ===== 闍ｦ謇句撫鬘御ｸ隕ｧ陦ｨ遉ｺ =====
+function showWeakList() {
+    const stats = loadFromStorage(STORAGE_KEYS.ACCOUNT_STATS) || {};
+
+    const weakItems = Object.entries(stats)
+        .filter(([account, data]) => data.total >= 1)
+        .map(([account, data]) => ({
+            account,
+            category: data.category,
+            accuracy: Math.round((data.correct / data.total) * 100),
+            total: data.total
+        }))
+        .filter(item => item.accuracy < 100)
+        .sort((a, b) => a.accuracy - b.accuracy)
+        .slice(0, 20);
+
+    if (weakItems.length === 0) {
+        elements.weakList.innerHTML = '<p class="empty-message">闍ｦ謇九↑蝠城｡後・縺ゅｊ縺ｾ縺帙ｓ縲らｴ譎ｴ繧峨＠縺・ｼ・/p>';
+    } else {
+        elements.weakList.innerHTML = weakItems.map(item => `
+            <div class="weak-item">
+                <div>
+                    <span class="weak-account">${item.account}</span>
+                    <span class="weak-category">・・{item.category}・・/span>
+                </div>
+                <div class="weak-stats">
+                    <span class="weak-accuracy">${item.accuracy}%</span>
+                    <span class="weak-attempts">${item.total}蝗槫屓遲・/span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    showScreen('weak');
+}
+
+// ===== 螻･豁ｴ繧ｯ繝ｪ繧｢ =====
+function clearHistory() {
+    if (confirm('縺吶∋縺ｦ縺ｮ險倬鹸繧偵け繝ｪ繧｢縺励∪縺吶°・・)) {
+        localStorage.removeItem(STORAGE_KEYS.HISTORY);
+        localStorage.removeItem(STORAGE_KEYS.WRONG_ANSWERS);
+        localStorage.removeItem(STORAGE_KEYS.ACCOUNT_STATS);
+        showHistory();
+        updateMenu();
+    }
+}
+
+// ========================================
+// ===== 莉募・縺代Δ繝ｼ繝・=====
+// ========================================
+
+function startSortingMode() {
+    if (!accountDatabase || Object.keys(accountDatabase).length === 0) {
+        accountDatabase = LEVEL_DATA['L1'].data;
+        currentLevel = LEVEL_DATA['L1'];
+    }
+
+    const allQuestions = [];
+    for (const [category, accounts] of Object.entries(accountDatabase)) {
+        for (const account of accounts) {
+            allQuestions.push({
+                account: account,
+                answer: category
+            });
+        }
+    }
+
+    sortingState.questions = shuffleArray(allQuestions);
+    sortingState.currentIndex = 0;
+    sortingState.placements = {};
+    sortingState.elapsedTime = 0;
+
+    document.querySelectorAll('.dropped-items').forEach(zone => {
+        zone.innerHTML = '';
+    });
+
+    elements.sortingTotal.textContent = sortingState.questions.length;
+    elements.sortingTimerDisplay.textContent = '00:00';
+    elements.checkAnswersBtn.classList.add('hidden');
+    elements.accountCard.classList.remove('hidden');
+
+    startSortingTimer();
+    showNextCard();
+    showScreen('sorting');
+}
+
+function startSortingTimer() {
+    sortingState.startTime = Date.now();
+    sortingState.timerInterval = setInterval(() => {
+        sortingState.elapsedTime = Math.floor((Date.now() - sortingState.startTime) / 1000);
+        elements.sortingTimerDisplay.textContent = formatTime(sortingState.elapsedTime);
+    }, 1000);
+}
+
+function stopSortingTimer() {
+    if (sortingState.timerInterval) {
+        clearInterval(sortingState.timerInterval);
+        sortingState.timerInterval = null;
+    }
+}
+
+function showNextCard() {
+    if (sortingState.currentIndex >= sortingState.questions.length) {
+        elements.accountCard.classList.add('hidden');
+        elements.checkAnswersBtn.classList.remove('hidden');
+        stopSortingTimer();
+        return;
+    }
+
+    const question = sortingState.questions[sortingState.currentIndex];
+    elements.cardAccountName.textContent = question.account;
+    elements.sortingCurrent.textContent = sortingState.currentIndex + 1;
+}
+
+// ===== 繝峨Λ繝・げ・・ラ繝ｭ繝・・蜃ｦ逅・=====
+let draggedAccount = null;
+
+function initDragAndDrop() {
+    const card = elements.accountCard;
+
+    card.addEventListener('dragstart', (e) => {
+        draggedAccount = elements.cardAccountName.textContent;
+        card.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+    });
+
+    card.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+    });
+
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            zone.classList.add('drag-over');
+        });
+
+        zone.addEventListener('dragleave', () => {
+            zone.classList.remove('drag-over');
+        });
+
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+
+            if (draggedAccount) {
+                const category = zone.dataset.category;
+                placeAccount(draggedAccount, category, zone);
+                draggedAccount = null;
+            }
+        });
+
+        zone.addEventListener('click', () => {
+            if (sortingState.currentIndex < sortingState.questions.length) {
+                const account = elements.cardAccountName.textContent;
+                const category = zone.dataset.category;
+                placeAccount(account, category, zone);
+            }
+        });
+    });
+}
+
+function placeAccount(account, category, zone) {
+    sortingState.placements[account] = category;
+
+    const droppedItem = document.createElement('span');
+    droppedItem.className = 'dropped-item';
+    droppedItem.textContent = account;
+    droppedItem.dataset.account = account;
+    zone.querySelector('.dropped-items').appendChild(droppedItem);
+
+    sortingState.currentIndex++;
+    showNextCard();
+}
+
+function checkSortingAnswers() {
+    let correctCount = 0;
+    const wrongAnswers = [];
+
+    for (const question of sortingState.questions) {
+        const placed = sortingState.placements[question.account];
+        const isCorrect = placed === question.answer;
+
+        if (isCorrect) {
+            correctCount++;
+        } else {
+            wrongAnswers.push({
+                account: question.account,
+                placed: placed,
+                correct: question.answer
+            });
+        }
+
+        const item = document.querySelector(`.dropped-item[data-account="${question.account}"]`);
+        if (item) {
+            item.classList.add(isCorrect ? 'correct' : 'incorrect');
+        }
+
+        updateAccountStats(question.account, question.answer, isCorrect);
+    }
+
+    setTimeout(() => {
+        showSortingResult(correctCount, wrongAnswers);
+    }, 1500);
+}
+
+function showSortingResult(correctCount, wrongAnswers) {
+    const total = sortingState.questions.length;
+    const accuracy = Math.round((correctCount / total) * 100);
+    const rank = calculateRank(accuracy, sortingState.elapsedTime);
+
+    gameState.correctCount = correctCount;
+    gameState.totalQuestions = total;
+    saveHistory(accuracy, rank.grade, '莉戊ｨｳ繝｢繝ｼ繝・);
+
+    elements.sortingAccuracy.textContent = `${accuracy}%`;
+    elements.sortingFinalTime.textContent = formatTime(sortingState.elapsedTime);
+    elements.sortingCorrectCount.textContent = `${correctCount}/${total}`;
+
+    elements.sortingRank.textContent = rank.grade;
+    elements.sortingRank.className = `rank rank-${rank.grade.toLowerCase()}`;
+    elements.sortingRankMessage.textContent = rank.message;
+
+    if (wrongAnswers.length > 0) {
+        elements.wrongAnswersList.classList.remove('hidden');
+        elements.wrongAnswersContent.innerHTML = wrongAnswers.map(item => `
+            <div class="wrong-answer-item">
+                <span class="wrong-answer-account">${item.account}</span>
+                <span class="wrong-answer-info">
+                    ${item.placed} 竊・<span class="correct-answer">${item.correct}</span>
+                </span>
+            </div>
+        `).join('');
+    } else {
+        elements.wrongAnswersList.classList.add('hidden');
+    }
+
+    showScreen('sortingResult');
+}
+
+// ===== 繧､繝吶Φ繝医Μ繧ｹ繝翫・ =====
+elements.startBtn.addEventListener('click', () => {
+    showScreen('level');
+});
+
+elements.retryWrongBtn.addEventListener('click', startRetryWrong);
+elements.weakListBtn.addEventListener('click', showWeakList);
+elements.historyBtn.addEventListener('click', showHistory);
+
+elements.backToMenuBtn.addEventListener('click', () => {
+    // 繧｢繧ｳ繝ｼ繝・ぅ繧ｪ繝ｳ繧帝哩縺倥ｋ
+    document.querySelectorAll('.accordion-header.active').forEach(h => {
+        h.classList.remove('active');
+        const content = document.getElementById(`accordion-${h.dataset.level}`);
+        if (content) content.classList.remove('open');
+    });
+    showScreen('menu');
+    updateMenu();
+});
+
+elements.retryBtn.addEventListener('click', () => {
+    if (currentLevel && currentMode === 'quiz') {
+        startModeGame(null, currentLevel, 'quiz');
+    } else {
+        startRetryWrong();
+    }
+});
+
+elements.retryWrongResultBtn.addEventListener('click', () => {
+    gameState.questions = shuffleArray(gameState.wrongAnswers);
+    gameState.totalQuestions = gameState.questions.length;
+    gameState.mode = 'retry';
+    startGameWithQuestions();
+});
+
+elements.menuBtn.addEventListener('click', () => {
+    showScreen('menu');
+    updateMenu();
+});
+
+elements.clearHistoryBtn.addEventListener('click', clearHistory);
+elements.backFromHistoryBtn.addEventListener('click', () => {
+    showScreen('menu');
+    updateMenu();
+});
+
+elements.backFromWeakBtn.addEventListener('click', () => {
+    showScreen('menu');
+    updateMenu();
+});
+
+elements.checkAnswersBtn.addEventListener('click', checkSortingAnswers);
+elements.backFromSortingBtn.addEventListener('click', () => {
+    stopSortingTimer();
+    showScreen('menu');
+    updateMenu();
+});
+
+elements.sortingRetryBtn.addEventListener('click', startSortingMode);
+elements.sortingMenuBtn.addEventListener('click', () => {
+    showScreen('menu');
+    updateMenu();
+});
+
+document.querySelectorAll('.table-cell').forEach(cell => {
+    cell.addEventListener('click', () => {
+        if (!cell.disabled) {
+            handleAnswer(cell.dataset.answer, cell);
+        }
+    });
+});
+
+document.addEventListener('keydown', (e) => {
+    if (!screens.quiz.classList.contains('active') || gameState.isAnswered) return;
+
+    const keyMap = {
+        '1': '雉・肇',
+        '2': '雋蛯ｵ',
+        '3': '邏碑ｳ・肇',
+        '4': '雋ｻ逕ｨ',
+        '5': '蜿守寢'
+    };
+
+    if (keyMap[e.key]) {
+        const cell = document.querySelector(`.table-cell[data-answer="${keyMap[e.key]}"]`);
+        if (cell && !cell.disabled) {
+            handleAnswer(keyMap[e.key], cell);
+        }
+    }
+});
+
+// ===== 蛻晄悄蛹・=====
+updateMenu();
+initAccordion();
+initDragAndDrop();
+
+// ========================================
+// ===== 險育ｮ励Δ繝ｼ繝・=====
+// ========================================
+
+// ===== 險育ｮ励Δ繝ｼ繝蛾幕蟋・=====
+function startCalcMode() {
+    if (!accountDatabase || Object.keys(accountDatabase).length === 0) {
+        accountDatabase = LEVEL_DATA['L1'].data;
+        currentLevel = LEVEL_DATA['L1'];
+    }
+
+    calcState.currentQuestion = 0;
+    calcState.correctCount = 0;
+    calcState.elapsedTime = 0;
+    calcState.questions = generateCalcQuestions();
+    calcState.totalQuestions = calcState.questions.length;
+    calcState.userAnswers = {};
+
+    elements.calcTotal.textContent = calcState.totalQuestions;
+    elements.calcTimerDisplay.textContent = '00:00';
+
+    startCalcTimer();
+    showCalcQuestion();
+    showScreen('calc');
+}
+
+// ===== 險育ｮ怜撫鬘檎函謌・=====
+function generateCalcQuestions() {
+    const questions = [];
+
+    for (let i = 0; i < 10; i++) {
+        let question;
+        
+        if (i < 2) {
+            // 1-2問目: 貸借対照表のみ
+            question = Math.random() < 0.5 ? generateBalanceSheetQuestion1() : generateBalanceSheetQuestion2();
+        } else if (i < 4) {
+            // 3-4問目: 損益計算書のみ
+            question = generateProfitLossQuestion();
+        } else {
+            // 5-10問目: 複合問題
+            question = generateCombinedQuestion();
+        }
+        
+        questions.push(question);
+    }
+
+    return questions;
+}
+
+// 雋ｸ蛟溷ｯｾ辣ｧ陦ｨ蝠城｡・: 雉・肇 - 雋蛯ｵ = 邏碑ｳ・肇
+function generateBalanceSheetQuestion1() {
+    const asset = Math.floor(Math.random() * 900 + 100) * 10; // 1000-10000
+    const liability = Math.floor(Math.random() * (asset / 2 / 10)) * 10;
+    const equity = asset - liability;
+
+    const unknowns = ['asset', 'liability', 'equity'];
+    const unknown = unknowns[Math.floor(Math.random() * unknowns.length)];
+
+    return {
+        type: 'bs1',
+        values: { asset, liability, equity },
+        unknown: unknown,
+        answer: unknown === 'asset' ? asset : unknown === 'liability' ? liability : equity
+    };
+}
+
+// 雋ｸ蛟溷ｯｾ辣ｧ陦ｨ蝠城｡・: 雉・肇 = 雋蛯ｵ + 邏碑ｳ・肇
+function generateBalanceSheetQuestion2() {
+    const liability = Math.floor(Math.random() * 500 + 100) * 10;
+    const equity = Math.floor(Math.random() * 500 + 100) * 10;
+    const asset = liability + equity;
+
+    const unknowns = ['asset', 'liability', 'equity'];
+    const unknown = unknowns[Math.floor(Math.random() * unknowns.length)];
+
+    return {
+        type: 'bs2',
+        values: { asset, liability, equity },
+        unknown: unknown,
+        answer: unknown === 'asset' ? asset : unknown === 'liability' ? liability : equity
+    };
+}
+
+// 雉・悽螟牙虚蝠城｡・ 譛滓忰雉・悽 - 譛滄ｦ冶ｳ・悽 = 邏泌茜逶・
+function generateCapitalChangeQuestion() {
+    const startCapital = Math.floor(Math.random() * 500 + 100) * 10;
+    const profit = Math.floor(Math.random() * 300 + 50) * 10;
+    const endCapital = startCapital + profit;
+
+    const unknowns = ['startCapital', 'endCapital', 'profit'];
+    const unknown = unknowns[Math.floor(Math.random() * unknowns.length)];
+
+    return {
+        type: 'capital',
+        values: { startCapital, endCapital, profit },
+        unknown: unknown,
+        answer: unknown === 'startCapital' ? startCapital : unknown === 'endCapital' ? endCapital : profit
+    };
+}
+
+// 謳咲寢險育ｮ玲嶌蝠城｡・ 蜿守寢 - 雋ｻ逕ｨ = 邏泌茜逶・
+function generateProfitLossQuestion() {
+    const revenue = Math.floor(Math.random() * 800 + 200) * 10;
+    const expense = Math.floor(Math.random() * (revenue / 10)) * 10;
+    const profit = revenue - expense;
+
+    const unknowns = ['revenue', 'expense', 'profit'];
+    const unknown = unknowns[Math.floor(Math.random() * unknowns.length)];
+
+    return {
+        type: 'pl',
+        values: { revenue, expense, profit },
+        unknown: unknown,
+        answer: unknown === 'revenue' ? revenue : unknown === 'expense' ? expense : profit
+    };
+}
+
+// ===== 險育ｮ怜撫鬘瑚｡ｨ遉ｺ =====
+function showCalcQuestion() {
+    const question = calcState.questions[calcState.currentQuestion];
+
+    elements.calcCurrent.textContent = calcState.currentQuestion + 1;
+    elements.calcAnswerInput.value = '';
+    elements.calcFeedback.classList.add('hidden');
+    elements.calcSubmitBtn.disabled = false;
+
+    // 蝠城｡梧枚縺ｨ蝗ｳ繧堤函謌・
+    let diagramHTML = '';
+    let questionText = '';
+    let inputLabel = '';
+
+    switch (question.type) {
+        case 'bs1':
+        case 'bs2':
+            questionText = '谺｡縺ｮ雋ｸ蛟溷ｯｾ辣ｧ陦ｨ縺ｮ遨ｺ谺・ｒ蝓九ａ縺ｦ縺上□縺輔＞';
+            diagramHTML = generateBSDiagram(question);
+            inputLabel = question.unknown === 'asset' ? '雉・肇' : question.unknown === 'liability' ? '雋蛯ｵ' : '邏碑ｳ・肇';
+            break;
+        case 'capital':
+            questionText = '谺｡縺ｮ雉・悽螟牙虚縺ｮ遨ｺ谺・ｒ蝓九ａ縺ｦ縺上□縺輔＞';
+            diagramHTML = generateCapitalDiagram(question);
+            inputLabel = question.unknown === 'startCapital' ? '譛滄ｦ冶ｳ・悽' : question.unknown === 'endCapital' ? '譛滓忰雉・悽' : '邏泌茜逶・;
+            break;
+        case 'pl':
+            questionText = '谺｡縺ｮ謳咲寢險育ｮ玲嶌縺ｮ遨ｺ谺・ｒ蝓九ａ縺ｦ縺上□縺輔＞';
+            diagramHTML = generatePLDiagram(question);
+            inputLabel = question.unknown === 'revenue' ? '蜿守寢' : question.unknown === 'expense' ? '雋ｻ逕ｨ' : '邏泌茜逶・;
+            break;
+    }
+
+    elements.calcQuestionText.textContent = questionText;
+    elements.calcDiagram.innerHTML = diagramHTML;
+    elements.calcInputLabel.textContent = inputLabel;
+    elements.calcAnswerInput.focus();
+}
+
+// 雋ｸ蛟溷ｯｾ辣ｧ陦ｨ蝗ｳ逕滓・
+function generateBSDiagram(question) {
+    const { asset, liability, equity } = question.values;
+    const unknown = question.unknown;
+
+    return `
+        <div class="calc-diagram-bs">
+            <div class="calc-item asset">
+                <span class="calc-item-label">雉・肇</span>
+                <span class="calc-item-value ${unknown === 'asset' ? 'unknown' : ''}">
+                    ${unknown === 'asset' ? '?' : asset.toLocaleString()}
+                </span>
+            </div>
+            <div>
+                <div class="calc-item liability" style="margin-bottom: 1rem;">
+                    <span class="calc-item-label">雋蛯ｵ</span>
+                    <span class="calc-item-value ${unknown === 'liability' ? 'unknown' : ''}">
+                        ${unknown === 'liability' ? '?' : liability.toLocaleString()}
+                    </span>
+                </div>
+                <div class="calc-item equity">
+                    <span class="calc-item-label">邏碑ｳ・肇</span>
+                    <span class="calc-item-value ${unknown === 'equity' ? 'unknown' : ''}">
+                        ${unknown === 'equity' ? '?' : equity.toLocaleString()}
+                    </span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 雉・悽螟牙虚蝗ｳ逕滓・
+function generateCapitalDiagram(question) {
+    const { startCapital, endCapital, profit } = question.values;
+    const unknown = question.unknown;
+
+    return `
+        <div class="calc-diagram-bs">
+            <div class="calc-item equity">
+                <span class="calc-item-label">譛滄ｦ冶ｳ・悽</span>
+                <span class="calc-item-value ${unknown === 'startCapital' ? 'unknown' : ''}">
+                    ${unknown === 'startCapital' ? '?' : startCapital.toLocaleString()}
+                </span>
+            </div>
+            <div>
+                <div class="calc-item revenue" style="margin-bottom: 1rem;">
+                    <span class="calc-item-label">邏泌茜逶・/span>
+                    <span class="calc-item-value ${unknown === 'profit' ? 'unknown' : ''}">
+                        ${unknown === 'profit' ? '?' : profit.toLocaleString()}
+                    </span>
+                </div>
+                <div class="calc-item equity">
+                    <span class="calc-item-label">譛滓忰雉・悽</span>
+                    <span class="calc-item-value ${unknown === 'endCapital' ? 'unknown' : ''}">
+                        ${unknown === 'endCapital' ? '?' : endCapital.toLocaleString()}
+                    </span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 謳咲寢險育ｮ玲嶌蝗ｳ逕滓・
+function generatePLDiagram(question) {
+    const { revenue, expense, profit } = question.values;
+    const unknown = question.unknown;
+
+    return `
+        <div class="calc-diagram-pl">
+            <div class="calc-item expense">
+                <span class="calc-item-label">雋ｻ逕ｨ</span>
+                <span class="calc-item-value ${unknown === 'expense' ? 'unknown' : ''}">
+                    ${unknown === 'expense' ? '?' : expense.toLocaleString()}
+                </span>
+            </div>
+            <div>
+                <div class="calc-item revenue" style="margin-bottom: 1rem;">
+                    <span class="calc-item-label">蜿守寢</span>
+                    <span class="calc-item-value ${unknown === 'revenue' ? 'unknown' : ''}">
+                        ${unknown === 'revenue' ? '?' : revenue.toLocaleString()}
+                    </span>
+                </div>
+                <div class="calc-item revenue">
+                    <span class="calc-item-label">邏泌茜逶・/span>
+                    <span class="calc-item-value ${unknown === 'profit' ? 'unknown' : ''}">
+                        ${unknown === 'profit' ? '?' : profit.toLocaleString()}
+                    </span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ===== 險育ｮ励ち繧､繝槭・ =====
+function startCalcTimer() {
+    calcState.startTime = Date.now();
+    calcState.timerInterval = setInterval(() => {
+        calcState.elapsedTime = Math.floor((Date.now() - calcState.startTime) / 1000);
+        elements.calcTimerDisplay.textContent = formatTime(calcState.elapsedTime);
+    }, 1000);
+}
+
+function stopCalcTimer() {
+    if (calcState.timerInterval) {
+        clearInterval(calcState.timerInterval);
+        calcState.timerInterval = null;
+    }
+}
+
+// ===== 險育ｮ苓ｧ｣遲泌・逅・=====
+function submitCalcAnswer() {
+    const userAnswer = parseInt(elements.calcAnswerInput.value);
+    const question = calcState.questions[calcState.currentQuestion];
+
+    if (isNaN(userAnswer)) {
+        alert('謨ｰ蛟､繧貞・蜉帙＠縺ｦ縺上□縺輔＞');
+        return;
+    }
+
+    const isCorrect = userAnswer === question.answer;
+
+    if (isCorrect) {
+        calcState.correctCount++;
+        elements.calcFeedback.classList.remove('hidden', 'incorrect');
+        elements.calcFeedback.classList.add('correct');
+        elements.calcFeedbackText.textContent = '箝・豁｣隗｣・・;
+    } else {
+        elements.calcFeedback.classList.remove('hidden', 'correct');
+        elements.calcFeedback.classList.add('incorrect');
+        elements.calcFeedbackText.textContent = `笶・荳肴ｭ｣隗｣... 豁｣隗｣縺ｯ ${question.answer.toLocaleString()} 蜀・;
+    }
+
+    elements.calcSubmitBtn.disabled = true;
+
+    setTimeout(() => {
+        calcState.currentQuestion++;
+
+        if (calcState.currentQuestion >= calcState.totalQuestions) {
+            endCalcMode();
+        } else {
+            showCalcQuestion();
+        }
+    }, 1500);
+}
+
+// ===== 險育ｮ励Δ繝ｼ繝臥ｵゆｺ・=====
+function endCalcMode() {
+    stopCalcTimer();
+
+    const accuracy = Math.round((calcState.correctCount / calcState.totalQuestions) * 100);
+    const rank = calculateRank(accuracy, calcState.elapsedTime);
+
+    gameState.correctCount = calcState.correctCount;
+    gameState.totalQuestions = calcState.totalQuestions;
+    saveHistory(accuracy, rank.grade, '險育ｮ励Δ繝ｼ繝・);
+
+    elements.calcAccuracy.textContent = `${accuracy}%`;
+    elements.calcFinalTime.textContent = formatTime(calcState.elapsedTime);
+    elements.calcCorrectCount.textContent = `${calcState.correctCount}/${calcState.totalQuestions}`;
+
+    elements.calcRank.textContent = rank.grade;
+    elements.calcRank.className = `rank rank-${rank.grade.toLowerCase()}`;
+    elements.calcRankMessage.textContent = rank.message;
+
+    showScreen('calcResult');
+}
+
+// ===== 繧､繝吶Φ繝医Μ繧ｹ繝翫・・郁ｨ育ｮ励Δ繝ｼ繝会ｼ・=====
+elements.calcSubmitBtn.addEventListener('click', submitCalcAnswer);
+
+elements.calcAnswerInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !elements.calcSubmitBtn.disabled) {
+        submitCalcAnswer();
+    }
+});
+
+elements.backFromCalcBtn.addEventListener('click', () => {
+    stopCalcTimer();
+    showScreen('menu');
+    updateMenu();
+});
+
+elements.calcRetryBtn.addEventListener('click', startCalcMode);
+
+elements.calcMenuBtn.addEventListener('click', () => {
+    showScreen('menu');
+    updateMenu();
+});
+

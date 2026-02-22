@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簿記 勘定科目クイズ</title>
+    <meta name="description" content="簿記の勘定科目が資産・負債・純資産・費用・収益のどれに分類されるかを学べるクイズアプリ">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container min-h-screen flex items-center justify-center p-4">
+        <!-- メニュー画面 -->
+        <div id="menu-screen" class="screen active w-full max-w-lg">
+            <div
+                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2rem] p-10 shadow-2xl shadow-indigo-100">
+                <h1
+                    class="title text-5xl font-bold text-center mb-2 bg-gradient-to-br from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                    📚 簿記クイズ</h1>
+                <p class="subtitle text-center text-slate-500 font-medium mb-8">勘定科目の分類マスター</p>
+
+                <div class="menu-buttons flex flex-col gap-4">
+                    <button id="start-btn"
+                        class="btn group relative overflow-hidden bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl p-5 text-xl font-bold shadow-xl shadow-indigo-200 hover:-translate-y-1 transition-all duration-300">
+                        <span class="flex items-center justify-center gap-3">
+                            <span class="text-2xl group-hover:scale-125 transition-transform">🚀</span>はじめる
+                        </span>
+                    </button>
+                    <button id="weak-review-btn"
+                        class="btn group bg-white border border-slate-200 text-slate-700 rounded-2xl p-4 font-semibold hover:bg-slate-50 hover:border-indigo-200 hover:-translate-y-1 transition-all duration-300 relative">
+                        <span class="flex items-center justify-center gap-2">
+                            <span class="text-xl group-hover:rotate-12 transition-transform">📉</span>苦手・復習
+                            <span id="wrong-count-badge"
+                                class="badge hidden absolute -top-2 -right-2 bg-rose-500 text-white text-xs px-2 py-1 rounded-full shadow-lg">0</span>
+                        </span>
+                    </button>
+                    <button id="history-btn"
+                        class="btn group bg-white border border-slate-200 text-slate-700 rounded-2xl p-4 font-semibold hover:bg-slate-50 hover:border-indigo-200 hover:-translate-y-1 transition-all duration-300">
+                        <span class="flex items-center justify-center gap-2">
+                            <span class="text-xl group-hover:scale-110 transition-transform">📊</span>過去の記録
+                        </span>
+                    </button>
+                    <button id="stats-btn"
+                        class="btn group bg-white border border-slate-200 text-slate-700 rounded-2xl p-4 font-semibold hover:bg-slate-50 hover:border-indigo-200 hover:-translate-y-1 transition-all duration-300">
+                        <span class="flex items-center justify-center gap-2">
+                            <span class="text-xl group-hover:scale-110 transition-transform">📋</span>成績一覧
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- レベル選択画面 -->
+        <div id="level-screen" class="screen w-full max-w-xl">
+            <div
+                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2rem] p-8 shadow-2xl shadow-indigo-100">
+                <h2 class="screen-title text-2xl font-bold text-slate-800 text-center mb-2">レベル選択</h2>
+                <p class="screen-description text-center text-slate-500 mb-8">挑戦するレベルを選んでください</p>
+
+                <div class="accordion-list flex flex-col gap-4 mb-6">
+                    <!-- レベル1 -->
+                    <div
+                        class="accordion-item bg-white/50 border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                        <button
+                            class="accordion-header w-full flex items-center justify-between p-5 hover:bg-indigo-50 transition-colors"
+                            data-level="L1">
+                            <span class="level-name text-lg font-bold text-slate-700">📗 5つの要素について</span>
+                            <span class="accordion-icon transition-transform">▼</span>
+                        </button>
+                        <div class="accordion-content max-h-0 overflow-hidden transition-all duration-300 bg-white/30"
+                            id="accordion-L1">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-4">
+                                <button
+                                    class="mode-btn flex flex-col items-center gap-2 p-4 bg-white border border-slate-100 rounded-xl hover:border-indigo-400 hover:shadow-lg transition-all"
+                                    data-level="L1" data-mode="quiz">
+                                    <span class="text-2xl">🎯</span>
+                                    <span class="font-bold text-slate-700">クイズ</span>
+                                </button>
+                                <button
+                                    class="mode-btn flex flex-col items-center gap-2 p-4 bg-white border border-slate-100 rounded-xl hover:border-indigo-400 hover:shadow-lg transition-all"
+                                    data-level="L1" data-mode="sorting">
+                                    <span class="text-2xl">📋</span>
+                                    <span class="font-bold text-slate-700">仕訳</span>
+                                </button>
+                                <button
+                                    class="mode-btn flex flex-col items-center gap-2 p-4 bg-white border border-slate-100 rounded-xl hover:border-indigo-400 hover:shadow-lg transition-all"
+                                    data-level="L1" data-mode="calc">
+                                    <span class="text-2xl">🔢</span>
+                                    <span class="font-bold text-slate-700">計算</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- レベル2 -->
+                    <div
+                        class="accordion-item bg-white/50 border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                        <button
+                            class="accordion-header w-full flex items-center justify-between p-5 hover:bg-indigo-50 transition-colors"
+                            data-level="L2">
+                            <span class="level-name text-lg font-bold text-slate-700">📘 仕訳問題（単元別）</span>
+                            <span class="accordion-icon transition-transform">▼</span>
+                        </button>
+                        <div class="accordion-content max-h-0 overflow-hidden transition-all duration-300 bg-white/30"
+                            id="accordion-L2">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4">
+                                <button
+                                    class="mode-btn section-btn flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-xl hover:border-indigo-400 hover:shadow-lg transition-all"
+                                    data-level="L2" data-mode="journal" data-section="cash">
+                                    <span class="text-2xl">💰</span>
+                                    <div class="text-left">
+                                        <div class="font-bold text-slate-700">1: 現金</div>
+                                        <div class="text-xs text-slate-400">現金の基本仕訳</div>
+                                    </div>
+                                </button>
+                                <button
+                                    class="mode-btn section-btn flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-xl hover:border-indigo-400 hover:shadow-lg transition-all"
+                                    data-level="L2" data-mode="journal" data-section="bank">
+                                    <span class="text-2xl">🏦</span>
+                                    <div class="text-left">
+                                        <div class="font-bold text-slate-700">2: 当座預金</div>
+                                        <div class="text-xs text-slate-400">預け入れ・引き出し</div>
+                                    </div>
+                                </button>
+                                <button
+                                    class="mode-btn section-btn flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-xl hover:border-indigo-400 hover:shadow-lg transition-all"
+                                    data-level="L2" data-mode="journal" data-section="payable">
+                                    <span class="text-2xl">📋</span>
+                                    <div class="text-left">
+                                        <div class="font-bold text-slate-700">3: 買掛金</div>
+                                        <div class="text-xs text-slate-400">仕入れ、代金支払い</div>
+                                    </div>
+                                </button>
+                                <button
+                                    class="mode-btn section-btn flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-xl hover:border-indigo-400 hover:shadow-lg transition-all"
+                                    data-level="L2" data-mode="journal" data-section="receivable">
+                                    <span class="text-2xl">📝</span>
+                                    <div class="text-left">
+                                        <div class="font-bold text-slate-700">4: 売掛金</div>
+                                        <div class="text-xs text-slate-400">売り上げ、代金回収</div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- レベル3 -->
+                    <div
+                        class="accordion-item bg-white/50 border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                        <button
+                            class="accordion-header w-full flex items-center justify-between p-5 hover:bg-indigo-50 transition-colors"
+                            data-level="L3">
+                            <span class="level-name text-lg font-bold text-slate-700">📙 仕訳問題（総合）</span>
+                            <span class="accordion-icon transition-transform">▼</span>
+                        </button>
+                        <div class="accordion-content max-h-0 overflow-hidden transition-all duration-300 bg-white/30"
+                            id="accordion-L3">
+                            <div class="p-4">
+                                <button
+                                    class="mode-btn w-full flex items-center gap-4 p-6 bg-white border border-slate-100 rounded-xl hover:border-orange-400 hover:shadow-lg transition-all"
+                                    data-level="L3" data-mode="journal-total">
+                                    <span class="text-3xl">🏆</span>
+                                    <div class="text-left">
+                                        <div class="font-bold text-lg text-slate-700">総合問題</div>
+                                        <div class="text-sm text-slate-400">全単元からのランダム出題</div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="back-to-menu-btn"
+                    class="btn w-full text-slate-400 font-semibold hover:text-indigo-600 transition-colors py-2 text-sm italic">←
+                    メニューに戻る</button>
+            </div>
+        </div>
+
+        <!-- クイズ画面 -->
+        <div id="quiz-screen" class="screen w-full max-w-2xl px-4">
+            <div
+                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-100 flex flex-col gap-6">
+                <div class="quiz-header flex justify-between items-center mb-2">
+                    <div
+                        class="progress-info text-slate-400 font-bold bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
+                        <span id="question-number" class="text-indigo-600 text-xl">1</span> <span class="mx-1">/</span>
+                        <span id="total-questions">10</span>
+                    </div>
+                    <div
+                        class="timer flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-xl border border-indigo-100 text-indigo-700 font-bold">
+                        <span class="timer-icon rotate-animation">⏱️</span>
+                        <span id="timer-display" class="font-mono">00:00</span>
+                    </div>
+                </div>
+
+                <div class="progress-bar h-2 w-full bg-slate-100 rounded-full overflow-hidden mb-2">
+                    <div id="progress-fill"
+                        class="progress-fill h-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-500"
+                        style="width: 10%"></div>
+                </div>
+
+                <div class="question-area text-center py-6">
+                    <p class="question-label text-slate-400 font-semibold mb-4 tracking-wider uppercase text-xs">
+                        この勘定科目はどこに分類される？</p>
+                    <div id="account-name"
+                        class="account-name text-4xl font-extrabold text-slate-800 bg-white shadow-soft py-6 px-10 rounded-3xl border border-slate-100 inline-block min-w-[280px] transform hover:scale-105 transition-transform">
+                        現金</div>
+                </div>
+
+                <!-- 貸借対照表 -->
+                <div
+                    class="table-container border-2 border-slate-100 rounded-3xl overflow-hidden shadow-sm bg-white/30">
+                    <div
+                        class="table-header bs-header flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-100">
+                        <span
+                            class="header-side text-[10px] font-bold text-slate-400 uppercase tracking-widest">（借方）</span>
+                        <span class="header-title text-sm font-bold text-slate-600">貸借対照表</span>
+                        <span
+                            class="header-side text-[10px] font-bold text-slate-400 uppercase tracking-widest">（貸方）</span>
+                    </div>
+                    <div class="bs-table grid grid-cols-2 h-40">
+                        <button
+                            class="table-cell asset h-full bg-sky-50 hover:bg-sky-100 border-r border-slate-100 flex items-center justify-center transition-all group"
+                            data-answer="資産">
+                            <span
+                                class="cell-content text-xl font-bold text-sky-700 tracking-[0.5em] group-hover:scale-110 transition-transform">資産</span>
+                        </button>
+                        <div class="right-cells flex flex-col h-full">
+                            <button
+                                class="table-cell liability flex-1 bg-amber-50 hover:bg-amber-100 border-b border-slate-100 flex items-center justify-center transition-all group"
+                                data-answer="負債">
+                                <span
+                                    class="cell-content text-xl font-bold text-amber-700 tracking-[0.5em] group-hover:scale-110 transition-transform">負債</span>
+                            </button>
+                            <button
+                                class="table-cell equity flex-1 bg-purple-50 hover:bg-purple-100 flex items-center justify-center transition-all group"
+                                data-answer="純資産">
+                                <span
+                                    class="cell-content text-xl font-bold text-purple-700 tracking-[0.5em] group-hover:scale-110 transition-transform">純資産</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 損益計算書 -->
+                <div
+                    class="table-container border-2 border-slate-100 rounded-3xl overflow-hidden shadow-sm bg-white/30">
+                    <div
+                        class="table-header pl-header flex justify-between items-center p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-slate-100">
+                        <span
+                            class="header-side text-[10px] font-bold text-slate-400 uppercase tracking-widest">（借方）</span>
+                        <span class="header-title text-sm font-bold text-slate-600">損益計算書</span>
+                        <span
+                            class="header-side text-[10px] font-bold text-slate-400 uppercase tracking-widest">（貸方）</span>
+                    </div>
+                    <div class="pl-table grid grid-cols-2 h-32">
+                        <div class="left-cells flex flex-col h-full border-r border-slate-100">
+                            <button
+                                class="table-cell expense flex-1 bg-rose-50 hover:bg-rose-100 border-b border-slate-100 flex items-center justify-center transition-all group"
+                                data-answer="費用">
+                                <span
+                                    class="cell-content text-xl font-bold text-rose-700 tracking-[0.5em] group-hover:scale-110 transition-transform">費用</span>
+                            </button>
+                            <div
+                                class="profit-label bg-cyan-50 text-[10px] font-bold text-cyan-600 p-1 text-center flex items-center justify-center min-h-[24px]">
+                                （当期純利益）</div>
+                        </div>
+                        <button
+                            class="table-cell revenue h-full bg-emerald-50 hover:bg-emerald-100 flex items-center justify-center transition-all group"
+                            data-answer="収益">
+                            <span
+                                class="cell-content text-xl font-bold text-emerald-700 tracking-[0.5em] group-hover:scale-110 transition-transform">収益</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="feedback"
+                    class="feedback hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
+                    <span id="feedback-text" class="text-9xl font-black drop-shadow-2xl"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 仕分けモード画面 -->
+        <div id="sorting-screen" class="screen w-full max-w-4xl px-4">
+            <div
+                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-100">
+                <div class="sorting-header flex justify-between items-center mb-8">
+                    <h2 class="screen-title text-2xl font-bold text-slate-800">仕訳モード</h2>
+                    <div
+                        class="timer flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-xl border border-indigo-100 text-indigo-700 font-bold">
+                        <span class="timer-icon">⏱️</span>
+                        <span id="sorting-timer-display" class="font-mono">00:00</span>
+                    </div>
+                </div>
+
+                <!-- 勘定科目カード -->
+                <div class="card-area flex flex-col items-center gap-6 mb-12">
+                    <p class="sorting-instruction text-slate-400 font-medium">カードを下の表にドラッグしてください</p>
+                    <div id="account-card"
+                        class="account-card cursor-grab active:cursor-grabbing bg-white shadow-soft py-8 px-12 rounded-3xl border-2 border-indigo-100 text-3xl font-extrabold text-slate-800 transform hover:scale-105 transition-all"
+                        draggable="true">
+                        <span id="card-account-name">現金</span>
+                    </div>
+                    <div class="card-progress text-slate-400 font-bold">
+                        <span id="sorting-current" class="text-indigo-600">1</span> <span class="mx-1">/</span> <span
+                            id="sorting-total">21</span>
+                    </div>
+                </div>
+
+                <!-- ドロップゾーン：貸借対照表 -->
+                <div
+                    class="drop-table-container border-2 border-slate-100 rounded-3xl overflow-hidden shadow-sm bg-white/30 mb-6">
+                    <div
+                        class="table-header bs-header flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-100">
+                        <span
+                            class="header-side text-[10px] font-bold text-slate-400 uppercase tracking-widest">（借方）</span>
+                        <span class="header-title text-sm font-bold text-slate-600">貸借対照表</span>
+                        <span
+                            class="header-side text-[10px] font-bold text-slate-400 uppercase tracking-widest">（貸方）</span>
+                    </div>
+                    <div class="drop-bs-table grid grid-cols-2 min-h-[160px]">
+                        <div class="drop-zone asset bg-sky-50/50 hover:bg-sky-100 transition-colors border-r border-slate-100 p-4"
+                            data-category="資産">
+                            <span
+                                class="drop-zone-title block text-center text-xs font-bold text-sky-400 mb-2 tracking-widest">資産</span>
+                            <div class="dropped-items flex flex-wrap gap-2" id="dropped-asset"></div>
+                        </div>
+                        <div class="drop-right-cells flex flex-col h-full">
+                            <div class="drop-zone liability bg-amber-50/50 hover:bg-amber-100 transition-colors border-b border-slate-100 p-4 flex-1"
+                                data-category="負債">
+                                <span
+                                    class="drop-zone-title block text-center text-xs font-bold text-amber-400 mb-2 tracking-widest">負債</span>
+                                <div class="dropped-items flex flex-wrap gap-2" id="dropped-liability"></div>
+                            </div>
+                            <div class="drop-zone equity bg-purple-50/50 hover:bg-purple-100 transition-colors p-4 flex-1"
+                                data-category="純資産">
+                                <span
+                                    class="drop-zone-title block text-center text-xs font-bold text-purple-400 mb-2 tracking-widest">純資産</span>
+                                <div class="dropped-items flex flex-wrap gap-2" id="dropped-equity"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ドロップゾーン：損益計算書 -->
+                <div
+                    class="drop-table-container border-2 border-slate-100 rounded-3xl overflow-hidden shadow-sm bg-white/30 mb-8">
+                    <div
+                        class="table-header pl-header flex justify-between items-center p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-slate-100">
+                        <span
+                            class="header-side text-[10px] font-bold text-slate-400 uppercase tracking-widest">（借方）</span>
+                        <span class="header-title text-sm font-bold text-slate-600">損益計算書</span>
+                        <span
+                            class="header-side text-[10px] font-bold text-slate-400 uppercase tracking-widest">（貸方）</span>
+                    </div>
+                    <div class="drop-pl-table grid grid-cols-2 min-h-[120px]">
+                        <div class="drop-zone expense bg-rose-50/50 hover:bg-rose-100 transition-colors border-r border-slate-100 p-4"
+                            data-category="費用">
+                            <span
+                                class="drop-zone-title block text-center text-xs font-bold text-rose-400 mb-2 tracking-widest">費用</span>
+                            <div class="dropped-items flex flex-wrap gap-2" id="dropped-expense"></div>
+                        </div>
+                        <div class="drop-zone revenue bg-emerald-50/50 hover:bg-emerald-100 transition-colors p-4"
+                            data-category="収益">
+                            <span
+                                class="drop-zone-title block text-center text-xs font-bold text-emerald-400 mb-2 tracking-widest">収益</span>
+                            <div class="dropped-items flex flex-wrap gap-2" id="dropped-revenue"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sorting-buttons flex flex-col gap-4">
+                    <button id="check-answers-btn"
+                        class="btn hidden bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 transform hover:-translate-y-1 transition-all">答え合わせ</button>
+                    <button id="back-from-sorting-btn"
+                        class="btn text-slate-400 font-semibold hover:text-indigo-600 transition-colors py-2 text-sm italic">←
+                        メニューに戻る</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 仕分け結果画面 -->
+        <div id="sorting-result-screen" class="screen w-full max-w-lg px-4">
+            <div
+                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100 text-center">
+                <h2 class="result-title text-3xl font-bold text-slate-800 mb-8">仕訳完了！</h2>
+
+                <div id="sorting-rank-display" class="rank-display mb-10 transform scale-125">
+                    <span
+                        class="rank-label block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">RANK</span>
+                    <span id="sorting-rank"
+                        class="rank text-7xl font-black bg-gradient-to-br from-yellow-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">S</span>
+                </div>
+
+                <div class="stats grid grid-cols-3 gap-4 mb-10">
+                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
+                        <span class="stat-icon block text-2xl mb-1">✅</span>
+                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正答率</span>
+                        <span id="sorting-accuracy" class="stat-value font-bold text-indigo-600">100%</span>
+                    </div>
+                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
+                        <span class="stat-icon block text-2xl mb-1">⏱️</span>
+                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">タイム</span>
+                        <span id="sorting-final-time" class="stat-value font-bold text-indigo-600">00:00</span>
+                    </div>
+                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
+                        <span class="stat-icon block text-2xl mb-1">🎯</span>
+                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正解数</span>
+                        <span id="sorting-correct-count" class="stat-value font-bold text-indigo-600">21/21</span>
+                    </div>
+                </div>
+
+                <div id="sorting-rank-message" class="rank-message text-slate-500 font-medium mb-10 italic">すばらしい！満点です！
+                </div>
+
+                <!-- 間違えた問題一覧 -->
+                <div id="wrong-answers-list"
+                    class="wrong-answers-list hidden bg-rose-50 rounded-2xl p-6 text-left mb-10">
+                    <h3 class="text-rose-600 font-bold mb-3 flex items-center gap-2">
+                        <span>⚠️</span> 間違えた問題
+                    </h3>
+                    <div id="wrong-answers-content" class="text-sm text-rose-500 space-y-1"></div>
+                </div>
+
+                <div class="result-buttons flex flex-col gap-4">
+                    <button id="sorting-retry-btn"
+                        class="btn bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">もう一度挑戦</button>
+                    <button id="sorting-menu-btn"
+                        class="btn bg-white border border-slate-200 text-slate-700 rounded-2xl py-4 font-bold hover:bg-slate-50 transition-all">メニューに戻る</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 計算モード画面 -->
+        <div id="calc-screen" class="screen w-full max-w-4xl px-4">
+            <div
+                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-100 flex flex-col gap-6">
+                <div class="calc-main-container grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 左側：問題エリア -->
+                    <div class="calc-question-section flex flex-col gap-6">
+                        <div class="calc-header flex justify-between items-center">
+                            <h2 class="screen-title text-2xl font-bold text-slate-800">計算モード</h2>
+                            <div
+                                class="timer flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-xl border border-indigo-100 text-indigo-700 font-bold">
+                                <span class="timer-icon">⏱️</span>
+                                <span id="calc-timer-display" class="font-mono">00:00</span>
+                            </div>
+                        </div>
+
+                        <div class="calc-progress text-slate-400 font-bold text-sm">
+                            <span class="progress-label uppercase tracking-widest text-[10px]">Question</span>
+                            <span id="calc-current" class="text-indigo-600 text-lg">1</span> <span class="mx-1">/</span>
+                            <span id="calc-total">5</span>
+                        </div>
+
+                        <div class="calc-question-area bg-white/50 rounded-3xl p-6 border border-slate-100">
+                            <p id="calc-question-text" class="calc-question-text text-slate-600 font-medium mb-6">
+                                次の金額を計算してください</p>
+
+                            <div id="calc-diagram"
+                                class="calc-diagram mb-8 min-h-[140px] flex items-center justify-center">
+                                <!-- 貸借対照表または損益計算書の図 -->
+                            </div>
+
+                            <div class="calc-input-area flex flex-col gap-3">
+                                <label for="calc-answer-input"
+                                    class="calc-label text-sm font-bold text-slate-400 uppercase tracking-wider">
+                                    <span id="calc-input-label">純資産</span> =
+                                </label>
+                                <div class="relative flex items-center">
+                                    <input type="number" id="calc-answer-input"
+                                        class="calc-input w-full bg-white shadow-soft py-4 px-6 rounded-2xl border-2 border-slate-100 focus:border-indigo-400 outline-none text-2xl font-bold text-slate-800"
+                                        placeholder="金額を入力" min="0" />
+                                    <span
+                                        class="calc-unit absolute right-6 text-slate-400 font-bold text-xl font-serif">円</span>
+                                </div>
+                            </div>
+
+                            <div id="calc-feedback" class="calc-feedback hidden mt-4 text-center py-2 rounded-xl">
+                                <span id="calc-feedback-text" class="font-bold"></span>
+                            </div>
+                        </div>
+
+                        <div class="calc-buttons flex flex-col gap-3">
+                            <button id="calc-submit-btn"
+                                class="btn bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">解答する</button>
+                            <button id="back-from-calc-btn"
+                                class="btn text-slate-400 font-semibold hover:text-indigo-600 transition-colors py-2 text-sm italic">←
+                                メニューに戻る</button>
+                        </div>
+                    </div>
+
+                    <!-- 右側：簡易電卓エリア -->
+                    <div class="calc-calculator-section">
+                        <div
+                            class="mini-calculator bg-slate-800 rounded-[2rem] p-6 shadow-2xl flex flex-col gap-4 border border-slate-700">
+                            <div class="calc-display bg-slate-900 text-emerald-400 font-mono text-3xl text-right p-6 rounded-2xl shadow-inner border border-slate-700 min-h-[80px] break-all flex items-center justify-end"
+                                id="mini-calc-display">0</div>
+                            <div class="calc-keys grid grid-cols-4 gap-3">
+                                <button
+                                    class="calc-key op-key bg-slate-700 hover:bg-rose-500 text-white font-bold py-4 rounded-xl transition-all"
+                                    data-type="clear">C</button>
+                                <button
+                                    class="calc-key op-key bg-slate-700 hover:bg-slate-600 text-indigo-300 font-bold py-4 rounded-xl transition-all"
+                                    data-type="operator" data-val="/">÷</button>
+                                <button
+                                    class="calc-key op-key bg-slate-700 hover:bg-slate-600 text-indigo-300 font-bold py-4 rounded-xl transition-all"
+                                    data-type="operator" data-val="*">×</button>
+                                <button
+                                    class="calc-key op-key bg-slate-700 hover:bg-rose-500 text-white font-bold py-4 rounded-xl transition-all"
+                                    data-type="backspace">⌫</button>
+
+                                <button
+                                    class="calc-key num-key bg-slate-600 hover:bg-slate-500 text-white font-bold py-4 rounded-xl transition-all"
+                                    data-val="7">7</button>
+                                <button
+                                    class="calc-key num-key bg-slate-600 hover:bg-slate-500 text-white font-bold py-4 rounded-xl transition-all"
+                                    data-val="8">8</button>
+                                <button
+                                    class="calc-key num-key bg-slate-600 hover:bg-slate-500 text-white font-bold py-4 rounded-xl transition-all"
+                                    data-val="9">9</button>
+                                <button
+                                    class="calc-key op-key bg-slate-700 hover:bg-slate-600 text-indigo-300 font-bold py-4 rounded-xl transition-all"
+                                    data-type="operator" data-val="-">-</button>
+
+                                <button
+                                    class="calc-key num-key bg-slate-600 hover:bg-slate-500 text-white font-bold py-4 rounded-xl transition-all"
+                                    data-val="4">4</button>
+                                <button
+                                    class="calc-key num-key bg-slate-600 hover:bg-slate-500 text-white font-bold py-4 rounded-xl transition-all"
+                                    data-val="5">5</button>
+                                <button
+                                    class="calc-key num-key bg-slate-600 hover:bg-slate-500 text-white font-bold py-4 rounded-xl transition-all"
+                                    data-val="6">6</button>
+                                <button
+                                    class="calc-key op-key bg-slate-700 hover:bg-slate-600 text-indigo-300 font-bold py-4 rounded-xl transition-all"
+                                    data-type="operator" data-val="+">+</button>
+
+                                <button
+                                    class="calc-key num-key bg-slate-600 hover:bg-slate-500 text-white font-bold py-4 rounded-xl transition-all"
+                                    data-val="1">1</button>
+                                <button
+                                    class="calc-key num-key bg-slate-600 hover:bg-slate-500 text-white font-bold py-4 rounded-xl transition-all"
+                                    data-val="2">2</button>
+                                <button
+                                    class="calc-key num-key bg-slate-600 hover:bg-slate-500 text-white font-bold py-4 rounded-xl transition-all"
+                                    data-val="3">3</button>
+                                <button
+                                    class="calc-key eq-key bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-4 rounded-xl transition-all row-span-2"
+                                    data-type="equal">=</button>
+
+                                <button
+                                    class="calc-key num-key zero-key bg-slate-600 hover:bg-slate-500 text-white font-bold py-4 rounded-xl transition-all col-span-2"
+                                    data-val="0">0</button>
+                                <button
+                                    class="calc-key num-key bg-slate-600 hover:bg-slate-500 text-white font-bold py-4 rounded-xl transition-all"
+                                    data-val=".">.</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 計算モード結果画面 -->
+        <div id="calc-result-screen" class="screen w-full max-w-lg px-4">
+            <div
+                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100 text-center">
+                <h2 class="result-title text-3xl font-bold text-slate-800 mb-8">計算完了！</h2>
+
+                <div id="calc-rank-display" class="rank-display mb-10 transform scale-125">
+                    <span
+                        class="rank-label block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">RANK</span>
+                    <span id="calc-rank"
+                        class="rank text-7xl font-black bg-gradient-to-br from-yellow-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">S</span>
+                </div>
+
+                <div class="stats grid grid-cols-3 gap-4 mb-10">
+                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
+                        <span class="stat-icon block text-2xl mb-1">✅</span>
+                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正解率</span>
+                        <span id="calc-accuracy" class="stat-value font-bold text-indigo-600">100%</span>
+                    </div>
+                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
+                        <span class="stat-icon block text-2xl mb-1">⏱️</span>
+                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">タイム</span>
+                        <span id="calc-final-time" class="stat-value font-bold text-indigo-600">00:00</span>
+                    </div>
+                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
+                        <span class="stat-icon block text-2xl mb-1">🎯</span>
+                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正解数</span>
+                        <span id="calc-correct-count" class="stat-value font-bold text-indigo-600">10/10</span>
+                    </div>
+                </div>
+
+                <div id="calc-rank-message" class="rank-message text-slate-500 font-medium mb-10 italic"></div>
+
+                <div class="result-buttons flex flex-col gap-4">
+                    <button id="calc-retry-btn"
+                        class="btn bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">もう一度挑戦</button>
+                    <button id="calc-menu-btn"
+                        class="btn bg-white border border-slate-200 text-slate-700 rounded-2xl py-4 font-bold hover:bg-slate-50 transition-all">メニューに戻る</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 結果画面 -->
+        <div id="result-screen" class="screen w-full max-w-lg px-4">
+            <div
+                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100 text-center">
+                <h2 class="result-title text-3xl font-bold text-slate-800 mb-8">クイズ完了！</h2>
+
+                <div id="rank-display" class="rank-display mb-10 transform scale-125">
+                    <span
+                        class="rank-label block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">RANK</span>
+                    <span id="rank"
+                        class="rank text-7xl font-black bg-gradient-to-br from-yellow-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">S</span>
+                </div>
+
+                <div class="stats grid grid-cols-3 gap-4 mb-10">
+                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
+                        <span class="stat-icon block text-2xl mb-1">✅</span>
+                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正答率</span>
+                        <span id="accuracy" class="stat-value font-bold text-indigo-600">100%</span>
+                    </div>
+                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
+                        <span class="stat-icon block text-2xl mb-1">⏱️</span>
+                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">タイム</span>
+                        <span id="final-time" class="stat-value font-bold text-indigo-600">00:00</span>
+                    </div>
+                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
+                        <span class="stat-icon block text-2xl mb-1">🎯</span>
+                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正解数</span>
+                        <span id="correct-count" class="stat-value font-bold text-indigo-600">10/10</span>
+                    </div>
+                </div>
+
+                <div id="rank-message" class="rank-message text-slate-500 font-medium mb-10 italic"></div>
+
+                <div class="result-buttons flex flex-col gap-4">
+                    <button id="retry-btn"
+                        class="btn bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">もう一度挑戦</button>
+                    <button id="retry-wrong-result-btn"
+                        class="btn hidden bg-white border border-rose-200 text-rose-600 rounded-2xl py-4 font-bold hover:bg-rose-50 transition-all">
+                        <span class="flex items-center justify-center gap-2">🔄間違えた問題だけ復習</span>
+                    </button>
+                    <button id="menu-btn"
+                        class="btn bg-white border border-slate-200 text-slate-700 rounded-2xl py-4 font-bold hover:bg-slate-50 transition-all">メニューに戻る</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 履歴画面 -->
+        <div id="history-screen" class="screen w-full max-w-2xl px-4">
+            <div
+                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100">
+                <h2
+                    class="screen-title text-2xl font-bold text-slate-800 mb-8 pb-4 border-b border-slate-100 flex items-center justify-center gap-2">
+                    📊 過去の記録</h2>
+
+                <div id="history-list"
+                    class="history-list flex flex-col gap-4 mb-10 max-h-[400px] overflow-y-auto px-2 custom-scrollbar">
+                    <p class="empty-message text-center text-slate-400 italic">まだ記録がありません</p>
+                </div>
+
+                <div class="flex flex-col gap-4">
+                    <button id="clear-history-btn"
+                        class="btn text-rose-500 font-bold hover:bg-rose-50 transition-all py-3 rounded-2xl text-sm italic">記録をクリア</button>
+                    <button id="back-from-history-btn"
+                        class="btn bg-white border border-slate-200 text-slate-700 rounded-2xl py-4 font-bold hover:bg-slate-50 transition-all">←
+                        メニューに戻る</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 苦手・復習画面 -->
+        <div id="weak-screen" class="screen w-full max-w-2xl px-4">
+            <div
+                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100">
+                <h2 class="screen-title text-2xl font-bold text-slate-800 mb-2 text-center">📉 苦手・復習</h2>
+                <p class="screen-description text-center text-slate-400 mb-8 italic">間違えた問題をレベル別に復習できます</p>
+
+                <div id="weak-list" class="weak-list flex flex-col gap-4 mb-10">
+                    <!-- ここにレベル別の復習カードが動的に挿入されます -->
+                    <p class="empty-message text-center text-slate-400 italic">データがありません</p>
+                </div>
+
+                <button id="back-from-weak-btn"
+                    class="btn w-full bg-white border border-slate-200 text-slate-700 rounded-2xl py-4 font-bold hover:bg-slate-50 transition-all">←
+                    メニューに戻る</button>
+            </div>
+        </div>
+
+        <!-- 全成績一覧画面 -->
+        <div id="stats-screen" class="screen w-full max-w-5xl px-4">
+            <div
+                class="glass-card full-width bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100">
+                <h2 class="screen-title text-3xl font-bold text-slate-800 mb-2">📊 全成績一覧</h2>
+                <p class="screen-description text-slate-400 mb-8 italic">各勘定科目のこれまでの学習成果</p>
+
+                <div
+                    class="stats-table-container relative overflow-x-auto rounded-3xl border border-slate-100 shadow-soft bg-white/50 mb-10">
+                    <table class="stats-table w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-indigo-50/50 text-indigo-700 text-sm font-bold uppercase tracking-wider">
+                                <th class="px-6 py-4">カテゴリ</th>
+                                <th class="px-6 py-4">勘定科目</th>
+                                <th class="px-6 py-4 text-center">挑戦数</th>
+                                <th class="px-6 py-4 text-center">正解数</th>
+                                <th class="px-6 py-4 text-center">正答率</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stats-table-body" class="text-slate-600 divide-y divide-slate-100">
+                            <!-- JSで挿入 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="stats-buttons text-center">
+                    <button id="back-from-stats-btn"
+                        class="btn w-full max-w-xs mx-auto bg-white border border-slate-200 text-slate-700 rounded-2xl py-4 font-bold hover:bg-slate-50 transition-all">←
+                        メニューに戻る</button>
+                </div>
+            </div>
+        </div>
+        <!-- 仕訳問題画面 (レベル2, 3共通) -->
+        <div id="journal-screen" class="screen w-full max-w-5xl px-4">
+            <div
+                class="glass-card journal-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100 flex flex-col gap-8">
+                <div class="journal-header flex justify-between items-center">
+                    <h2 class="screen-title text-3xl font-bold text-slate-800" id="journal-title">仕訳問題</h2>
+                    <div
+                        class="timer flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-xl border border-indigo-100 text-indigo-700 font-bold">
+                        <span class="timer-icon">⏱️</span>
+                        <span id="journal-timer-display" class="font-mono">00:00</span>
+                    </div>
+                </div>
+
+                <div class="journal-progress text-slate-400 font-bold">
+                    <span class="progress-label uppercase text-[10px] tracking-widest">Question</span>
+                    <span id="journal-current" class="text-indigo-600 text-xl">1</span> <span class="mx-1">/</span>
+                    <span id="journal-total">5</span>
+                </div>
+
+                <div class="journal-question-area bg-white shadow-soft rounded-[2rem] p-8 border border-slate-100">
+                    <div class="transaction-content mb-8">
+                        <p class="transaction-label text-indigo-500 font-bold mb-2 flex items-center gap-2">
+                            <span>📝</span>取引内容
+                        </p>
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 italic transition-colors">
+                            <p id="journal-transaction-text"
+                                class="transaction-text text-xl font-medium text-slate-700 leading-relaxed text-center italic font-serif">
+                                ここに取引内容が表示されます</p>
+                        </div>
+                    </div>
+
+                    <div id="journal-choices-container" class="journal-choices-container grid grid-cols-1 gap-4">
+                        <!-- JSで動的に3つの選択肢ボタンが追加されます -->
+                    </div>
+
+                    <div id="journal-feedback"
+                        class="journal-feedback hidden mt-6 text-center py-3 rounded-2xl text-lg font-bold">
+                        <span id="journal-feedback-text"></span>
+                    </div>
+                </div>
+
+                <div class="journal-buttons flex flex-col gap-4">
+                    <button id="next-journal-btn"
+                        class="btn hidden bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all scale-105">次へ進む</button>
+                    <button id="back-from-journal-btn"
+                        class="btn text-slate-400 font-semibold hover:text-indigo-600 transition-colors py-2 text-sm italic">←
+                        メニューに戻る</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 仕訳問題結果画面 -->
+        <div id="journal-result-screen" class="screen w-full max-w-lg px-4">
+            <div
+                class="glass-card bg-white/70 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100 text-center">
+                <h2 class="result-title text-3xl font-bold text-slate-800 mb-8">仕訳完了！</h2>
+                <div id="journal-rank-display" class="rank-display mb-10 transform scale-125">
+                    <span
+                        class="rank-label block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">RANK</span>
+                    <span id="journal-rank"
+                        class="rank text-7xl font-black bg-gradient-to-br from-yellow-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">S</span>
+                </div>
+                <div class="stats grid grid-cols-3 gap-4 mb-10">
+                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
+                        <span class="stat-icon block text-2xl mb-1">✅</span>
+                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正解率</span>
+                        <span id="journal-accuracy" class="stat-value font-bold text-indigo-600">100%</span>
+                    </div>
+                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
+                        <span class="stat-icon block text-2xl mb-1">⏱️</span>
+                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">タイム</span>
+                        <span id="journal-final-time" class="stat-value font-bold text-indigo-600">00:00</span>
+                    </div>
+                    <div class="stat-item bg-white/50 p-4 rounded-2xl border border-slate-100">
+                        <span class="stat-icon block text-2xl mb-1">🎯</span>
+                        <span class="stat-label block text-[10px] font-bold text-slate-400 mb-1">正解数</span>
+                        <span id="journal-correct-count" class="stat-value font-bold text-indigo-600">5/5</span>
+                    </div>
+                </div>
+                <div id="journal-rank-message" class="rank-message text-slate-500 font-medium mb-10 italic"></div>
+                <div class="result-buttons flex flex-col gap-4">
+                    <button id="journal-retry-btn"
+                        class="btn bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">もう一度挑戦</button>
+                    <button id="journal-retry-wrong-btn"
+                        class="btn hidden bg-white border border-rose-200 text-rose-600 rounded-2xl py-4 font-bold hover:bg-rose-50 transition-all">間違えた問題を復習</button>
+                    <button id="journal-menu-btn"
+                        class="btn bg-white border border-slate-200 text-slate-700 rounded-2xl py-4 font-bold hover:bg-slate-50 transition-all">メニューに戻る</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
